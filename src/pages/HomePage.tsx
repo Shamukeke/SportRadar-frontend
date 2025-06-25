@@ -1,112 +1,87 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, MapPin, Users, Shield, Zap, Heart, Star } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const HomePage: React.FC = () => {
   const features = [
-    {
-      icon: MapPin,
-      title: 'Activités locales',
-      description: 'Découvrez toutes les activités sportives près de chez vous'
-    },
-    {
-      icon: Zap,
-      title: 'Recommandations intelligentes',
-      description: 'Suggestions personnalisées selon vos préférences et la météo'
-    },
-    {
-      icon: Shield,
-      title: 'Badge SportZen',
-      description: 'Identifiez les lieux bienveillants et non-compétitifs'
-    },
-    {
-      icon: Users,
-      title: 'Offres entreprises',
-      description: 'Solutions bien-être sur mesure pour les professionnels'
-    }
+    { icon: MapPin, title: 'Activités locales', description: 'Découvrez toutes les activités sportives près de chez vous' },
+    { icon: Zap, title: 'Recommandations intelligentes', description: 'Suggestions personnalisées selon vos préférences et la météo' },
+    { icon: Shield, title: 'Badge SportZen', description: 'Identifiez les lieux bienveillants et non-compétitifs' },
+    { icon: Users, title: 'Offres entreprises', description: 'Solutions bien-être sur mesure pour les professionnels' }
   ];
 
   const testimonials = [
-    {
-      name: 'Marie L.',
-      role: 'Utilisatrice',
-      content: 'Grâce à SportRadar, j\'ai retrouvé le plaisir de bouger ! Les recommandations sont parfaites.',
-      rating: 5
-    },
-    {
-      name: 'Tech Solutions',
-      role: 'Entreprise',
-      content: 'Le pack bien-être entreprise a transformé l\'ambiance de nos équipes. Très professionnel.',
-      rating: 5
-    }
+    { name: 'Marie L.', role: 'Utilisatrice', content: "Grâce à SportRadar, j'ai retrouvé le plaisir de bouger ! Les recommandations sont parfaites.", rating: 5 },
+    { name: 'Tech Solutions', role: 'Entreprise', content: "Le pack bien-être entreprise a transformé l'ambiance de nos équipes. Très professionnel.", rating: 5 }
   ];
 
+  // Carousel images
+  const images = [
+    "/images/hero/yoga.png",
+    "/images/hero/swiming.png",
+    "/images/hero/runing.jpeg",
+    "/images/hero/boxing.png",
+    "/images/hero/dance.png",
+  ];
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % images.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-sky-50 via-white to-emerald-50 py-20 lg:py-32">
+    <div className="min-h-screen font-sans text-gray-800">
+      {/* Hero Section with Carousel */}
+      <section className="relative bg-gradient-to-br from-red-50 via-white to-red-50 py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
-              Retrouvez le <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-emerald-600">plaisir</span><br />
-              de bouger
-            </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              SportRadar vous accompagne dans votre reprise d'activité sportive avec des recommandations 
-              personnalisées, des activités locales et une approche bienveillante du bien-être.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/activities"
-                className="bg-sky-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-sky-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
-              >
-                <span>Découvrir les activités</span>
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-              <Link
-                to="/login"
-                className="border-2 border-sky-600 text-sky-600 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-sky-600 hover:text-white transition-all duration-300 transform hover:scale-105"
-              >
-                Créer mon compte
-              </Link>
+          <div className="flex flex-col lg:flex-row items-center gap-12">
+            {/* Left: Image Carousel */}
+            <div className="lg:w-1/2 w-full">
+              <div className="relative overflow-hidden rounded-2xl shadow-lg">
+                <img
+                  src={images[current]}
+                  alt="Sport"
+                  className="w-full h-80 lg:h-96 object-cover transition-opacity duration-1000"
+                  key={current}
+                />
+              </div>
             </div>
-          </div>
-        </div>
-        
-        {/* Floating Elements */}
-        <div className="absolute top-20 left-10 w-20 h-20 bg-sky-200 rounded-full opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-32 right-16 w-16 h-16 bg-emerald-200 rounded-full opacity-20 animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 right-1/4 w-12 h-12 bg-orange-200 rounded-full opacity-20 animate-pulse delay-500"></div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Une approche innovante du bien-être
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Découvrez nos fonctionnalités pensées pour vous accompagner dans votre parcours sportif
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <div
-                  key={index}
-                  className="group p-6 bg-gray-50 rounded-2xl hover:bg-white hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+            {/* Right: Content */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="lg:w-1/2 w-full text-center lg:text-left"
+            >
+              <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 mb-6">
+                Retrouvez le{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-800">plaisir</span>
+                <br /> de bouger
+              </h1>
+              <p className="text-xl text-gray-600 mb-10 leading-relaxed">
+                SportRadar vous accompagne dans votre reprise d'activité sportive avec des recommandations personnalisées,
+                des activités locales et une approche bienveillante du bien-être.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <Link
+                  to="/activities"
+                  className="bg-gradient-to-r from-red-600 to-red-700 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:brightness-110 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl flex items-center justify-center space-x-2"
                 >
-                  <div className="w-12 h-12 bg-gradient-to-r from-sky-500 to-emerald-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <Icon className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
-                </div>
-              );
-            })}
+                  <span>Découvrir les activités</span>
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+                <Link
+                  to="/login"
+                  className="border-2 border-red-600 text-red-600 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-105"
+                >
+                  Créer mon compte
+                </Link>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
