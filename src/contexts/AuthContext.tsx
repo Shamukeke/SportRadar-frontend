@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState } from 'react';
+import type { ReactNode } from 'react';
 
 interface User {
   id: string;
@@ -37,9 +38,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
   const login = async (email: string, password: string, type: 'personal' | 'business') => {
+    void password;
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     const mockUser: User = {
       id: '1',
       name: type === 'business' ? 'Entreprise Exemple' : 'Marie Dupont',
@@ -51,7 +53,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         level: 'débutant'
       } : undefined
     };
-    
+
     setUser(mockUser);
   };
 
