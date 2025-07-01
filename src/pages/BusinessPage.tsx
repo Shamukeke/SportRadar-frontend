@@ -109,13 +109,13 @@ const BusinessPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen #0a1128">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-sky-600 via-sky-700 to-emerald-600 text-white py-20 lg:py-32">
+      <section className="bg-gradient-to-br from-sky-600 via-sky-700 to-emerald-600 text-gray-200 py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+              <div className="w-16 h-16 #0a1128/20 rounded-2xl flex items-center justify-center">
                 <Building className="w-8 h-8" />
               </div>
             </div>
@@ -129,11 +129,11 @@ const BusinessPage: React.FC = () => {
               avec des résultats mesurables et un impact durable.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-white text-sky-700 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2">
+              <button className="#0a1128 text-sky-700 px-8 py-4 rounded-xl text-lg font-semibold hover:#0a1128 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2">
                 <span>Demander une démo</span>
                 <ArrowRight className="w-5 h-5" />
               </button>
-              <button className="border-2 border-white text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-white hover:text-sky-700 transition-all duration-300">
+              <button className="border-2 border-white text-gray-200 px-8 py-4 rounded-xl text-lg font-semibold hover:#0a1128 hover:text-sky-700 transition-all duration-300">
                 Voir les tarifs
               </button>
             </div>
@@ -142,7 +142,7 @@ const BusinessPage: React.FC = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 #0a1128">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
             <div className="space-y-2">
@@ -166,10 +166,10 @@ const BusinessPage: React.FC = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 #0a1128">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-400 mb-4">
               Une plateforme complète pour vos équipes
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -183,12 +183,12 @@ const BusinessPage: React.FC = () => {
               return (
                 <div
                   key={index}
-                  className="group p-8 bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                  className="group p-8 #0a1128 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
                 >
                   <div className="w-14 h-14 bg-gradient-to-r from-sky-500 to-emerald-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Icon className="w-7 h-7 text-white" />
+                    <Icon className="w-7 h-7 text-gray-200" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
+                  <h3 className="text-xl font-semibold text-gray-400 mb-3">{feature.title}</h3>
                   <p className="text-gray-600">{feature.description}</p>
                 </div>
               );
@@ -198,11 +198,11 @@ const BusinessPage: React.FC = () => {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 #0a1128">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">
+              <h2 className="text-3xl font-bold text-gray-400 mb-6">
                 Des bénéfices concrets pour votre entreprise
               </h2>
               <p className="text-gray-600 mb-8 text-lg">
@@ -214,7 +214,7 @@ const BusinessPage: React.FC = () => {
                 {benefits.map((benefit, index) => (
                   <div key={index} className="flex items-center space-x-3">
                     <CheckCircle className="w-6 h-6 text-emerald-500 flex-shrink-0" />
-                    <span className="text-gray-700 font-medium">{benefit}</span>
+                    <span className="text-gray-400 font-medium">{benefit}</span>
                   </div>
                 ))}
               </div>
@@ -247,10 +247,10 @@ const BusinessPage: React.FC = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 #0a1128">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-bold text-gray-400 mb-4">
               Des offres adaptées à votre taille
             </h2>
             <p className="text-gray-600 text-lg">
@@ -262,7 +262,7 @@ const BusinessPage: React.FC = () => {
             {plans.map((plan, index) => (
               <div
                 key={index}
-                className={`relative bg-white rounded-2xl shadow-sm p-8 ${
+                className={`relative #0a1128 rounded-2xl shadow-sm p-8 ${
                   plan.popular 
                     ? 'border-2 border-sky-500 transform scale-105' 
                     : 'border border-gray-200'
@@ -270,16 +270,16 @@ const BusinessPage: React.FC = () => {
               >
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-sky-500 text-white px-4 py-2 rounded-full text-sm font-semibold">
+                    <span className="bg-sky-500 text-gray-200 px-4 py-2 rounded-full text-sm font-semibold">
                       Le plus populaire
                     </span>
                   </div>
                 )}
 
                 <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                  <h3 className="text-2xl font-bold text-gray-400 mb-2">{plan.name}</h3>
                   <div className="mb-4">
-                    <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
+                    <span className="text-4xl font-bold text-gray-400">{plan.price}</span>
                     {plan.period && <span className="text-gray-600 ml-2">{plan.period}</span>}
                   </div>
                   <p className="text-gray-600">{plan.description}</p>
@@ -289,7 +289,7 @@ const BusinessPage: React.FC = () => {
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center space-x-3">
                       <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
-                      <span className="text-gray-700">{feature}</span>
+                      <span className="text-gray-400">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -297,8 +297,8 @@ const BusinessPage: React.FC = () => {
                 <button
                   className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${
                     plan.popular
-                      ? 'bg-sky-600 text-white hover:bg-sky-700'
-                      : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                      ? '#e63946 text-gray-200 hover:brightness-110'
+                      : '#0a1128 text-gray-400 hover:#0a1128'
                   }`}
                 >
                   {plan.price === 'Sur mesure' ? 'Nous contacter' : 'Commencer l\'essai'}
@@ -310,24 +310,24 @@ const BusinessPage: React.FC = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-white">
+      <section className="py-20 #0a1128">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl font-bold text-gray-400 mb-4">
               Ils nous font confiance
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-gray-50 p-8 rounded-2xl">
+              <div key={index} className="#0a1128 p-8 rounded-2xl">
                 <div className="flex items-center mb-6">
-                  <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-2xl mr-4">
+                  <div className="w-12 h-12 #0a1128 rounded-lg flex items-center justify-center text-2xl mr-4">
                     {testimonial.logo}
                   </div>
-                  <div className="font-bold text-gray-900 text-lg">{testimonial.company}</div>
+                  <div className="font-bold text-gray-400 text-lg">{testimonial.company}</div>
                 </div>
-                <p className="text-gray-700 mb-6 text-lg italic">"{testimonial.text}"</p>
+                <p className="text-gray-400 mb-6 text-lg italic">"{testimonial.text}"</p>
                 <div className="text-gray-600">{testimonial.author}</div>
               </div>
             ))}
@@ -336,9 +336,9 @@ const BusinessPage: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-sky-600 to-emerald-600 text-white">
+      <section className="py-20 bg-gradient-to-r from-sky-600 to-emerald-600 text-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Award className="w-16 h-16 text-white mx-auto mb-6" />
+          <Award className="w-16 h-16 text-gray-200 mx-auto mb-6" />
           <h2 className="text-3xl font-bold mb-4">
             Prêt à transformer votre entreprise ?
           </h2>
@@ -346,10 +346,10 @@ const BusinessPage: React.FC = () => {
             Rejoignez les centaines d'entreprises qui ont déjà fait le choix du bien-être
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-sky-700 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg">
+            <button className="#0a1128 text-sky-700 px-8 py-4 rounded-xl text-lg font-semibold hover:#0a1128 transition-all duration-300 transform hover:scale-105 shadow-lg">
               Demander une démo gratuite
             </button>
-            <button className="border-2 border-white text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-white hover:text-sky-700 transition-all duration-300">
+            <button className="border-2 border-white text-gray-200 px-8 py-4 rounded-xl text-lg font-semibold hover:#0a1128 hover:text-sky-700 transition-all duration-300">
               Parler à un expert
             </button>
           </div>

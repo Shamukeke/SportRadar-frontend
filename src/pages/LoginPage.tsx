@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart, User, Building, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import axios from 'axios';
 
 const LoginPage: React.FC = () => {
   const [accountType, setAccountType] = useState<'personal' | 'business'>('personal');
@@ -23,10 +24,33 @@ const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      await login(formData.email, formData.password, accountType);
+      if (isLogin) {
+        await login(formData.email, formData.password);
+      } else {
+        if (formData.password !== formData.confirmPassword) {
+          alert("Les mots de passe ne correspondent pas.");
+          return;
+        }
+
+        await axios.post('http://localhost:8000/api/register/', {
+          email: formData.email,
+          username: formData.name,
+          password: formData.password,
+          type: accountType,
+          preferences: {
+            activities: ['yoga'], // valeurs par défaut
+            location: 'Paris',
+            level: 'débutant'
+          }
+        });
+
+        await login(formData.email, formData.password);
+      }
+
       navigate('/dashboard');
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error('Erreur lors de la connexion ou inscription :', error);
+      alert("Identifiants incorrects ou erreur côté serveur.");
     } finally {
       setLoading(false);
     }
@@ -40,61 +64,57 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-emerald-50 py-12">
+    <div className="min-h-screen bg-[#C7C5C5] py-12">
       <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          {/* Header */}
-          <div className="px-6 py-8 bg-gradient-to-r from-sky-600 to-emerald-600 text-white text-center">
+        <div className="#0a1128 rounded-2xl shadow-xl overflow-hidden">
+          <div className="px-6 py-8 bg-[#0a1128] text-gray-400 text-center">
             <Link to="/" className="inline-flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                <Heart className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 #0a1128/20 rounded-lg flex items-center justify-center">
+                <Heart className="w-5 h-5 text-[#dc5f18]" />
               </div>
               <span className="text-xl font-bold">SportRadar</span>
             </Link>
-            <h1 className="text-2xl font-bold">
-              {isLogin ? 'Bienvenue !' : 'Rejoignez-nous'}
-            </h1>
-            <p className="text-sky-100 mt-2">
-              {isLogin ? 'Connectez-vous à votre espace' : 'Créez votre compte'}
-            </p>
+            <h1 className="text-2xl font-bold">{isLogin ? 'Bienvenue !' : 'Rejoignez-nous'}</h1>
+            <p className="text-sky-100 mt-2">{isLogin ? 'Connectez-vous à votre espace' : 'Créez votre compte'}</p>
           </div>
+<div className="px-6 py-4 border-b border-[#dc5f18]">
+  <div className="flex rounded-lg bg-[#0a1128] p-1">
+    <button
+      type="button"
+      onClick={() => setAccountType('personal')}
+      className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+        accountType === 'personal' 
+          ? 'text-[#0a1128] bg-white' 
+          : 'text-[#C7C5C5] hover:bg-[#dc5f18] hover:text-white'
+      }`}
+    >
+      <User className={`w-4 h-4 ${
+        accountType === 'personal' ? 'text-[#0a1128]' : 'text-[#C7C5C5] group-hover:text-white'
+      }`} />
+      <span>Personnel</span>
+    </button>
+    <button
+      type="button"
+      onClick={() => setAccountType('business')}
+      className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+        accountType === 'business' 
+          ? 'text-[#0a1128] bg-white' 
+          : 'text-[#C7C5C5] hover:bg-[#dc5f18] hover:text-white'
+      }`}
+    >
+      <Building className={`w-4 h-4 ${
+        accountType === 'business' ? 'text-[#0a1128]' : 'text-[#C7C5C5] group-hover:text-white'
+      }`} />
+      <span>Entreprise</span>
+    </button>
+  </div>
+</div>
 
-          {/* Account Type Tabs */}
-          <div className="px-6 py-4 border-b border-gray-100">
-            <div className="flex rounded-lg bg-gray-100 p-1">
-              <button
-                type="button"
-                onClick={() => setAccountType('personal')}
-                className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                  accountType === 'personal'
-                    ? 'bg-white text-sky-600 shadow-sm'
-                    : 'text-gray-600 hover:text-sky-600'
-                }`}
-              >
-                <User className="w-4 h-4" />
-                <span>Personnel</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setAccountType('business')}
-                className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                  accountType === 'business'
-                    ? 'bg-white text-sky-600 shadow-sm'
-                    : 'text-gray-600 hover:text-sky-600'
-                }`}
-              >
-                <Building className="w-4 h-4" />
-                <span>Entreprise</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Form */}
           <form onSubmit={handleSubmit} className="px-6 py-6 space-y-4">
             {!isLogin && (
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                  {accountType === 'business' ? 'Nom de l\'entreprise' : 'Nom complet'}
+                <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-2">
+                  {accountType === 'business' ? "Nom de l'entreprise" : 'Nom complet'}
                 </label>
                 <input
                   type="text"
@@ -110,9 +130,7 @@ const LoginPage: React.FC = () => {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email
-              </label>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-2">Email</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -129,9 +147,7 @@ const LoginPage: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Mot de passe
-              </label>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-400 mb-2">Mot de passe</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
@@ -156,7 +172,7 @@ const LoginPage: React.FC = () => {
 
             {!isLogin && (
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-400 mb-2">
                   Confirmer le mot de passe
                 </label>
                 <div className="relative">
@@ -178,20 +194,19 @@ const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-sky-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-sky-700 focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#0a1128] text-gray-200 py-3 px-4 rounded-lg font-semibold hover:brightness-110 focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Chargement...' : (isLogin ? 'Se connecter' : 'Créer mon compte')}
+              {loading ? 'Chargement...' : isLogin ? 'Se connecter' : 'Créer mon compte'}
             </button>
           </form>
 
-          {/* Footer */}
-          <div className="px-6 py-4 bg-gray-50 text-center">
+          <div className="px-6 py-4 #0a1128 text-center">
             <p className="text-sm text-gray-600">
               {isLogin ? 'Pas encore de compte ?' : 'Déjà un compte ?'}
               <button
                 type="button"
                 onClick={() => setIsLogin(!isLogin)}
-                className="ml-1 text-sky-600 hover:text-sky-700 font-medium"
+                className="ml-1 text-[#0a1128] hover:text-sky-700 font-medium"
               >
                 {isLogin ? 'Créer un compte' : 'Se connecter'}
               </button>

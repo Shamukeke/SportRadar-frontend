@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, MapPin, Users, Shield, Zap, Heart, Star } from 'lucide-react';
+import { ArrowRight, MapPin, Users, Shield, Zap, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
-
+import Newsletter from '../components/Newsletter';
 const HomePage: React.FC = () => {
   const features = [
     { icon: MapPin, title: 'Activités locales', description: 'Découvrez toutes les activités sportives près de chez vous' },
@@ -16,7 +16,6 @@ const HomePage: React.FC = () => {
     { name: 'Tech Solutions', role: 'Entreprise', content: "Le pack bien-être entreprise a transformé l'ambiance de nos équipes. Très professionnel.", rating: 5 }
   ];
 
-  // Carousel images
   const images = [
     "/images/hero/yoga.png",
     "/images/hero/swiming.png",
@@ -35,11 +34,10 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen font-sans text-gray-800">
-      {/* Hero Section with Carousel */}
-      <section className="relative bg-gradient-to-br from-red-50 via-white to-red-50 py-20 lg:py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Hero Section */}
+      <section className="min-h-screen bg-gradient-to-b from-[#0a1128] from-55% to-[#ABC2D7] lg:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
           <div className="flex flex-col lg:flex-row items-center gap-12">
-            {/* Left: Image Carousel */}
             <div className="lg:w-1/2 w-full">
               <div className="relative overflow-hidden rounded-2xl shadow-lg">
                 <img
@@ -50,33 +48,30 @@ const HomePage: React.FC = () => {
                 />
               </div>
             </div>
-            {/* Right: Content */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               className="lg:w-1/2 w-full text-center lg:text-left"
             >
-              <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 mb-6">
-                Retrouvez le{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-800">plaisir</span>
-                <br /> de bouger
+              <h1 className="text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-400 mb-6">
+                Ici, maintenant, <span className="text-[#dc5f18]">à ton rythme !</span>
               </h1>
-              <p className="text-xl text-gray-600 mb-10 leading-relaxed">
+              <p className="text-xl text-gray-400 mb-10 leading-relaxed">
                 SportRadar vous accompagne dans votre reprise d'activité sportive avec des recommandations personnalisées,
                 des activités locales et une approche bienveillante du bien-être.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Link
                   to="/activities"
-                  className="bg-gradient-to-r from-red-600 to-red-700 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:brightness-110 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl flex items-center justify-center space-x-2"
+                  className="bg-[#dc5f18] text-white px-8 py-4 rounded-xl text-lg font-semibold hover:brightness-110 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl flex items-center justify-center"
                 >
                   <span>Découvrir les activités</span>
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
                 <Link
                   to="/login"
-                  className="border-2 border-red-600 text-red-600 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-105"
+                  className="border-2 border-[#dc5f18] text-[#dc5f18] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#dc5f18] hover:text-white transition-all duration-300 transform hover:scale-105"
                 >
                   Créer mon compte
                 </Link>
@@ -84,76 +79,78 @@ const HomePage: React.FC = () => {
             </motion.div>
           </div>
         </div>
-      </section>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-sky-600 to-emerald-600 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div className="space-y-2">
-              <div className="text-4xl font-bold">500+</div>
-              <div className="text-sky-100">Activités référencées</div>
+        {/* Stats Section */}
+        <section className="flex justify-center items-start my-10 lg:my-24">
+          <div className="w-full max-w-3xl h-32 bg-[#736F6F] text-[#0a1128] border border-gray-400 rounded-full flex justify-around items-center text-white shadow-lg px-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold">500+</div>
+              <div className="text-xs">Activités référencées</div>
             </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold">10k+</div>
-              <div className="text-sky-100">Utilisateurs actifs</div>
+            <div className="text-center">
+              <div className="text-2xl font-bold">10k+</div>
+              <div className="text-xs">Utilisateurs actifs</div>
             </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold">95%</div>
-              <div className="text-sky-100">Satisfaction utilisateur</div>
+            <div className="text-center">
+              <div className="text-2xl font-bold">95%</div>
+              <div className="text-xs">Satisfaction utilisateur</div>
             </div>
           </div>
-        </div>
+        </section>
+       
       </section>
-
-      {/* Testimonials */}
-      <section className="py-20 bg-gray-50">
+      
+  
+      {/* Avantages Section */}
+      
+      <section className="bg-[#C7C5C5]  py-20 lg:-mt-44 ">   
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Ce qu'ils disent de nous</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-white p-8 rounded-2xl shadow-sm">
-                <div className="flex items-center mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <p className="text-gray-600 mb-4 italic">"{testimonial.content}"</p>
-                <div>
-                  <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                  <div className="text-sm text-gray-500">{testimonial.role}</div>
-                </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+            {features.map(({ title, description, icon: Icon }) => (
+              <div
+                key={title}
+                className="flex flex-col items-center text-center space-y-4 p-6 bg-[#ABC2D7] backdrop-blur-md rounded-2xl shadow-md hover:shadow-xl transition-shadow"
+              >
+                <Icon className="w-10 h-10 text-[#dc5f18]" />
+                <h3 className="text-xl font-semibold text-[#0a1128]">{title}</h3>
+                <p className="text-[#0a1128]-200 text-sm">{description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
+     
 
-      {/* CTA Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="bg-gradient-to-r from-sky-50 to-emerald-50 rounded-3xl p-12">
-            <Heart className="w-16 h-16 text-sky-600 mx-auto mb-6" />
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Prêt à commencer votre parcours bien-être ?
-            </h2>
-            <p className="text-xl text-gray-600 mb-8">
-              Rejoignez des milliers d'utilisateurs qui ont déjà transformé leur quotidien
-            </p>
-            <Link
-              to="/login"
-              className="bg-sky-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-sky-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl inline-flex items-center space-x-2"
-            >
-              <span>Commencer maintenant</span>
-              <ArrowRight className="w-5 h-5" />
-            </Link>
+      {/* Testimonials */}
+      <section className="py-20 bg-[#C7C5C5]  lg:-my-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-[#0a1128] ">Ce qu'ils disent de nous</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <div key={index} className="bg-[#ABC2D7] p-8 rounded-2xl shadow-sm">
+                <div className="flex items-center mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-[#dc5f18] fill-current" />
+                  ))}
+                </div>
+                <p className="text-[#0a1128] mb-4 italic">"{testimonial.content}"</p>
+                <div>
+                  <div className="font-semibold text-[#0a1128]">{testimonial.name}</div>
+                  <div className="text-sm text-[#0a1128]">{testimonial.role}</div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
+        <Newsletter/>
       </section>
+
+      
     </div>
+    
   );
 };
 

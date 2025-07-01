@@ -1,116 +1,57 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User, Heart, MapPin } from 'lucide-react';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const Header: React.FC = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout, isAuthenticated } = useAuth();
-  const location = useLocation();
+  const navigate = useNavigate();
 
-  const navigation = [
-    { name: 'Accueil', href: '/', icon: Heart },
-    { name: 'Activités', href: '/activities', icon: MapPin },
-    { name: 'Entreprises', href: '/business', icon: User },
-  ];
-
-  const isActive = (href: string) => location.pathname === href;
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-sky-500 to-emerald-500 rounded-lg flex items-center justify-center">
-              <Heart className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900">SportRadar</span>
-          </Link>
+    <header className="bg-gradient-to-r from-[#C7C5C5] via-[#8F8C8C] via-[43%] via-[#736F6F] via-[71%] to-[#736F6F] to-[96%]">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center">
+        
+        {/* Logo */}
+        <Link to="/" className="mb-4 sm:mb-0">
+          <img
+            src="/images/hero/logo_sportRadar.png"
+            alt="SportRadar Logo"
+            className="h-16 sm:h-20 w-auto"
+          />
+        </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive(item.href)
-                      ? 'text-sky-600 bg-sky-50'
-                      : 'text-gray-600 hover:text-sky-600 hover:bg-sky-50'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
-          </nav>
+        {/* Navigation */}
+        <nav className="flex flex-col sm:flex-row gap-4 items-center text-gray-200 text-lg font-bold">
+          <Link to="/" className="text-white hover:text-[#0a1128]">Accueil</Link>
 
-          {/* User Menu */}
-          <div className="flex items-center space-x-4">
-            {isAuthenticated ? (
-              <div className="flex items-center space-x-4">
-                <Link
-                  to="/dashboard"
-                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-sky-600 hover:bg-sky-50 transition-colors"
-                >
-                  <User className="w-4 h-4" />
-                  <span className="hidden sm:block">{user?.name}</span>
-                </Link>
-                <button
-                  onClick={logout}
-                  className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-                >
-                  Déconnexion
-                </button>
-              </div>
-            ) : (
-              <Link
-                to="/login"
-                className="bg-sky-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-sky-700 transition-colors"
+          {isAuthenticated ? (
+            <>
+              <Link to="/dashboard" className="text-white hover:text-[#0a1128]">Dashboard</Link>
+              <Link to="/activities" className="text-white hover:text-[#0a1128]">Activités</Link>
+              {user?.type === 'business' && (
+                <Link to="/business" className="text-white hover:text-[#0a1128]">Espace Entreprise</Link>
+              )}
+              <Link to="/profile" className="text-white hover:text-[#0a1128]">Mon profil</Link>
+              <button
+                onClick={handleLogout}
+                className="bg-[#dc5f18] px-4 py-2 rounded-lg text-white text-lg font-medium hover:bg-[#0a1128] transition-colors"
               >
-                Se connecter
-              </Link>
-            )}
-
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-md text-gray-600 hover:text-sky-600 hover:bg-sky-50 transition-colors"
+                Déconnexion
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              className="bg-[#dc5f18] text-white px-4 py-2 rounded-lg text-lg font-medium hover:bg-[#0a1128] transition-colors"
             >
-              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-100">
-            <nav className="flex flex-col space-y-2">
-              {navigation.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    onClick={() => setIsMenuOpen(false)}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive(item.href)
-                        ? 'text-sky-600 bg-sky-50'
-                        : 'text-gray-600 hover:text-sky-600 hover:bg-sky-50'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span>{item.name}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-        )}
+              Connexion
+            </Link>
+          )}
+        </nav>
       </div>
     </header>
   );
