@@ -5,7 +5,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import PrivateRoute from './components/PrivateRoute';
 import BusinessRoute from './components/BusinessRoute';
-
+import AdminRoute from './components/AdminRoute';
 
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
@@ -15,6 +15,7 @@ import ProfilePage from './pages/ProfilePage';
 import BusinessPage from './pages/BusinessPage';
 import AddActivityPage from './pages/AddActivityPage';
 import AdminActivitiesPage from './pages/AdminActivitiesPage';
+import AdminBackOffice from './pages/AdminBackOffice';
 import NotFoundPage from './pages/NotFoundPage';
 import BusinessActivitiesPage from './pages/BusinessActivitiesPage';
 
@@ -25,15 +26,15 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen #0a1128 flex flex-col">
+        <div className="min-h-screen flex flex-col">
           <Header />
           <main className="flex-1">
             <Routes>
-              {/* Public Routes */}
+              {/* Public */}
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
 
-              {/* Protected Routes */}
+              {/* Authentifié */}
               <Route
                 path="/dashboard"
                 element={
@@ -67,15 +68,15 @@ function App() {
                 }
               />
               <Route
-                  path="/my-activities"
-                  element={
-                    <PrivateRoute>
-                      <BusinessActivitiesPage />
-                    </PrivateRoute>
-                  }
-                />
+                path="/my-activities"
+                element={
+                  <PrivateRoute>
+                    <BusinessActivitiesPage />
+                  </PrivateRoute>
+                }
+              />
 
-              {/* Business-only Routes */}
+              {/* Business-only */}
               <Route
                 path="/activities/new"
                 element={
@@ -97,11 +98,22 @@ function App() {
                 }
               />
 
-              {/* Not Found */}
+              {/* Admin-only BackOffice */}
+              <Route
+                path="/admin"
+                element={
+                  <PrivateRoute>
+                    <AdminRoute>
+                      <AdminBackOffice />
+                    </AdminRoute>
+                  </PrivateRoute>
+                }
+              />
+
+              {/* 404 */}
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </main>
-          
           <Footer />
           <ToastContainer />
         </div>

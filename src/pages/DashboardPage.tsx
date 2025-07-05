@@ -1,34 +1,12 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import axios from 'axios';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  PieChart,
-  Pie,
-  Cell,
-  Legend
-} from 'recharts';
+import axiosInstance from '../api/axiosInstance';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { toast } from 'react-toastify';
-import { MapPin, Zap, ActivitySquare, Bell } from 'lucide-react';
-
-interface MonthlyActivity {
-  month: string;
-  count: number;
-}
-
-interface CategoryStat {
-  category: string;
-  total: number;
-}
+import { MapPin, Zap, ActivitySquare, Bell, Target } from 'lucide-react';
 
 interface Notification {
   id: number;
@@ -36,18 +14,19 @@ interface Notification {
   date: string;
 }
 
-const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
+interface Activity {
+  id: number;
+  name: string;
+  category: string;
+  date: string;
+  time: string;
+}
 
 const DashboardPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [stats, setStats] = useState<{
-    total_activities: number;
-    monthly_activity: MonthlyActivity[];
-    top_categories: CategoryStat[];
-    average_participants: number;
-  } | null>(null);
-  const [activities, setActivities] = useState<any[]>([]);
+
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [date, setDate] = useState(new Date());
@@ -61,51 +40,29 @@ const DashboardPage: React.FC = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const token = localStorage.getItem('access');
-        if (!token) return;
-
-        const statsRes = await axios.get('http://localhost:8000/api/activities/stats/', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setStats(statsRes.data);
-
-        const activitiesRes = await axios.get('http://localhost:8000/api/activities/my-activities/', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setActivities(activitiesRes.data);
-
+        // mes activités inscrites
+        const myRes = await axiosInstance.get<Activity[]>('/activities/my-activities/');
+        setActivities(myRes.data);
+        // notifications statiques
         setNotifications([
-          { id: 1, message: "Nouvelle activité ajoutée", date: "2025-06-20" },
-          { id: 2, message: "Préférences mises à jour", date: "2025-06-25" }
+          { id: 1, message: 'Nouvelle activité ajoutée', date: '2025-06-20' },
+          { id: 2, message: 'Préférences mises à jour', date: '2025-06-25' }
         ]);
-      } catch (error) {
-        toast.error("Erreur lors du chargement des données");
+      } catch {
+        toast.error('Erreur chargement données');
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
-  const getBadge = () => {
-    if (!stats) return null;
-    const total = stats.total_activities;
-    if (total >= 20) return '🏅 Super Actif';
-    if (total >= 10) return '🥈 Actif';
-    if (total > 0) return '🔰 Débutant';
-    return '🚩 Aucun badge';
-  };
-
   if (!user) return null;
+  if (loading) return <div className="min-h-screen bg-[#C7C5C5] p-6 flex justify-center items-center">Chargement...</div>;
 
-  const filteredActivities = selectedCategory
-    ? activities.filter((a) => a.category === selectedCategory)
+  const filtered = selectedCategory
+    ? activities.filter(a => a.category === selectedCategory)
     : activities;
-
-  if (loading) {
-    return <div className="min-h-screen bg-[#C7C5C5] p-6 flex justify-center items-center">Chargement en cours...</div>;
-  }
 
   return (
     <div className="min-h-screen bg-[#C7C5C5] p-6">
@@ -113,7 +70,7 @@ const DashboardPage: React.FC = () => {
         {/* Header */}
         <div className="flex items-center gap-6 mb-6">
           <img
-            src="/images/default-avatar.png"
+            src={user.avatar || 'defaultAvatarImg'}
             alt="avatar"
             className="w-20 h-20 rounded-full object-cover border border-gray-300"
           />
@@ -122,15 +79,12 @@ const DashboardPage: React.FC = () => {
               Bonjour {user.type === 'business' ? 'Entreprise' : ''} {user.username} 👋
             </h1>
             <p className="text-gray-500">{user.email}</p>
-            <span className="mt-2 inline-block text-sm bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-semibold">
-              {getBadge()}
-            </span>
           </div>
         </div>
 
         {/* Préférences */}
         {user.preferences && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
             <div className="flex items-center bg-gray-100 p-4 rounded-lg">
               <MapPin className="w-6 h-6 text-[#dc5f18] mr-3" />
               <div>
@@ -150,24 +104,37 @@ const DashboardPage: React.FC = () => {
               <div>
                 <p className="text-sm text-gray-600">Activités</p>
                 <p className="font-semibold text-gray-800">
-                  {user.preferences.activities && user.preferences.activities.length > 0 ? user.preferences.activities.join(', ') : 'Non spécifiées'}
+                  {user.preferences.activities?.length
+                    ? user.preferences.activities.join(', ')
+                    : 'Non spécifiées'}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center bg-gray-100 p-4 rounded-lg">
+              <Target className="w-6 h-6 text-[#dc5f18] mr-3" />
+              <div>
+                <p className="text-sm text-gray-600">Objectifs</p>
+                <p className="font-semibold text-gray-800">
+                  {user.preferences.objectives?.length
+                    ? user.preferences.objectives.join(', ')
+                    : 'Non définis'}
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* Filtres */}
+        {/* Filtre catégorie */}
         <div className="mb-6">
           <label className="block font-medium text-[#0a1128]">Filtrer par catégorie :</label>
           <select
             value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
+            onChange={e => setSelectedCategory(e.target.value)}
             className="mt-1 w-full rounded-md border-gray-300 shadow-sm"
           >
             <option value="">Toutes</option>
-            {Array.from(new Set(activities.map(a => a.category))).map(category => (
-              <option key={category} value={category}>{category}</option>
+            {Array.from(new Set(activities.map(a => a.category))).map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
         </div>
@@ -178,7 +145,7 @@ const DashboardPage: React.FC = () => {
             <Bell className="w-5 h-5" /> Notifications
           </h2>
           <ul className="space-y-2">
-            {notifications.map((note) => (
+            {notifications.map(note => (
               <li key={note.id} className="bg-gray-50 border rounded px-4 py-2 text-sm text-gray-700 shadow-sm">
                 <strong>{note.date} :</strong> {note.message}
               </li>
@@ -186,47 +153,29 @@ const DashboardPage: React.FC = () => {
           </ul>
         </div>
 
-        {/* Graphique ligne */}
-        {stats?.monthly_activity && (
-          <div className="mb-10">
-            <h2 className="text-lg font-semibold text-[#dc5f18] mb-2">Activité mensuelle</h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={stats.monthly_activity}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="count" stroke="#dc5f18" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-
-        {/* Graphique circulaire */}
-        {stats?.top_categories && (
-          <div className="mb-10">
-            <h2 className="text-lg font-semibold text-[#dc5f18] mb-2">Activité par catégorie</h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie data={stats.top_categories} dataKey="total" nameKey="category" cx="50%" cy="50%" outerRadius={80} label>
-                  {stats.top_categories.map((entry, index) => (
-                    <Cell key={entry.category} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        )}
-
-        {/* Historique */}
+        {/* Mes activités inscrites */}
         <div className="mb-8">
-          <h2 className="text-lg font-semibold text-[#0a1128] mb-2">Dernières activités</h2>
+          <h2 className="text-lg font-semibold text-[#0a1128] mb-2">Mes activités inscrites</h2>
           <ul className="space-y-3">
-            {filteredActivities.slice(0, 5).map((a, index) => (
-              <li key={index} className="p-4 bg-gray-50 border rounded shadow-sm">
+            {filtered.map(act => (
+              <li key={act.id} className="p-4 bg-gray-50 border rounded shadow-sm flex justify-between">
+                <div>
+                  <p className="font-semibold">{act.name}</p>
+                  <p className="text-sm text-gray-600">{act.date} à {act.time}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Historique des activités */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold text-[#0a1128] mb-2">Historique des activités</h2>
+          <ul className="space-y-3">
+            {filtered.slice(0,5).map((a, idx) => (
+              <li key={idx} className="p-4 bg-gray-50 border rounded shadow-sm">
                 <p className="font-semibold">{a.name}</p>
-                <p className="text-sm text-gray-600">Créée le {new Date(a.created_at).toLocaleDateString('fr-FR')}</p>
+                <p className="text-sm text-gray-600">Inscrit le {new Date(a.date).toLocaleDateString('fr-FR')}</p>
               </li>
             ))}
           </ul>
@@ -250,3 +199,4 @@ const DashboardPage: React.FC = () => {
 };
 
 export default DashboardPage;
+

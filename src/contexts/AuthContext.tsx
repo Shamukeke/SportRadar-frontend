@@ -1,17 +1,24 @@
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect
+} from 'react';
 import axiosInstance from '../api/axiosInstance';
-import React, { createContext, useContext, useState, useEffect } from 'react';
-
 
 interface User {
-  id: string;
-  name: string;
+  id: number;
+  username: string;
   email: string;
   type: 'personal' | 'business';
   preferences?: {
     activities: string[];
     location: string;
     level: string;
+    objectives?: string[];
   };
+  avatar?: string;
+  is_staff: boolean;
 }
 
 interface AuthContextType {
@@ -19,36 +26,34 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  updateUser: (updates: Partial<User>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be inside AuthProvider');
+  return ctx;
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const isAuthenticated = !!user;
+  const isAuthenticated = Boolean(user);
+
+  const fetchMe = async (accessToken?: string) => {
+    try {
+      const res = await axiosInstance.get('/me/');
+      setUser(res.data);
+    } catch {
+      logout();
+    }
+  };
 
   const login = async (email: string, password: string) => {
-    const res = await axiosInstance.post('http://localhost:8000/api/token/', {
-      email,
-      password
-    });
-
-    localStorage.setItem('access', res.data.access);
-    localStorage.setItem('refresh', res.data.refresh);
-
-    const me = await axiosInstance.get('http://localhost:8000/api/me', {
-      headers: { Authorization: `Bearer ${res.data.access}` }
-    });
-
-    setUser(me.data);
+    const { data } = await axiosInstance.post('/token/', { email, password });
+    localStorage.setItem('access', data.access);
+    localStorage.setItem('refresh', data.refresh);
+    await fetchMe();
   };
 
   const logout = () => {
@@ -57,47 +62,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
-  const fetchMe = async (access: string) => {
+  // Nouvelle fonction pour mettre à jour les données utilisateur
+  const updateUser = async (updates: Partial<User>) => {
     try {
-      const res = await axiosInstance.get('http://localhost:8000/api/me', {
-        headers: { Authorization: `Bearer ${access}` }
-      });
-      setUser(res.data);
-    } catch (err) {
-      logout();
+      const { data } = await axiosInstance.patch('/me/', updates);
+      setUser(prev => ({ ...prev!, ...data }));
+      return data;
+    } catch (error) {
+      console.error('Failed to update user:', error);
+      throw error;
     }
   };
 
   const refreshToken = async () => {
     const refresh = localStorage.getItem('refresh');
     if (!refresh) return logout();
-
     try {
-      const res = await axiosInstance.post('http://localhost:8000/api/token/refresh/', {
-        refresh
-      });
-      localStorage.setItem('access', res.data.access);
-      await fetchMe(res.data.access);
-    } catch (err) {
+      const { data } = await axiosInstance.post('/token/refresh/', { refresh });
+      localStorage.setItem('access', data.access);
+      await fetchMe();
+    } catch {
       logout();
     }
   };
 
   useEffect(() => {
-    const access = localStorage.getItem('access');
-    if (access) {
-      fetchMe(access);
+    if (localStorage.getItem('access')) {
+      fetchMe();
     }
-
-    const interval = setInterval(() => {
-      refreshToken();
-    }, 4 * 60 * 1000); // toutes les 4 minutes
-
-    return () => clearInterval(interval);
+    const iv = setInterval(refreshToken, 4 * 60 * 1000);
+    return () => clearInterval(iv);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

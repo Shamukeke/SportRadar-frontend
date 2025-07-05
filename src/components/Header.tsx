@@ -12,33 +12,31 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-gradient-to-r from-[#C7C5C5] via-[#8F8C8C] via-[43%] via-[#736F6F] via-[71%] to-[#736F6F] to-[96%]">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center">
-        
-        {/* Logo */}
-        <Link to="/" className="mb-4 sm:mb-0">
+    <header className="bg-gradient-to-r from-[#C7C5C5] via-[#8F8C8C] to-[#736F6F]">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between">
+        <Link to="/">
           <img
             src="/images/hero/logo_sportRadar.png"
-            alt="SportRadar Logo"
-            className="h-16 sm:h-20 w-auto"
+            alt="SportRadar"
+            className="h-16"
           />
         </Link>
-
-        {/* Navigation */}
-        <nav className="flex flex-col sm:flex-row gap-4 items-center text-gray-200 text-lg font-bold">
-          <Link to="/" className="text-white hover:text-[#0a1128]">Accueil</Link>
-
+        <nav className="flex flex-wrap items-center gap-4 text-white font-bold">
+          <Link to="/">Accueil</Link>
           {isAuthenticated ? (
             <>
-              <Link to="/dashboard" className="text-white hover:text-[#0a1128]">Dashboard</Link>
-              <Link to="/activities" className="text-white hover:text-[#0a1128]">Activités</Link>
+              <Link to="/dashboard">Dashboard</Link>
+              <Link to="/activities">Activités</Link>
               {user?.type === 'business' && (
-                <Link to="/business" className="text-white hover:text-[#0a1128]">Espace Entreprise</Link>
+                <Link to="/business">Espace Entreprise</Link>
               )}
-              <Link to="/profile" className="text-white hover:text-[#0a1128]">Mon profil</Link>
+              {user?.is_staff && (
+                <Link to="/admin">Admin</Link>
+              )}
+              <Link to="/profile">Mon profil</Link>
               <button
                 onClick={handleLogout}
-                className="bg-[#dc5f18] px-4 py-2 rounded-lg text-white text-lg font-medium hover:bg-[#0a1128] transition-colors"
+                className="bg-[#dc5f18] px-4 py-2 rounded"
               >
                 Déconnexion
               </button>
@@ -46,7 +44,7 @@ const Header: React.FC = () => {
           ) : (
             <Link
               to="/login"
-              className="bg-[#dc5f18] text-white px-4 py-2 rounded-lg text-lg font-medium hover:bg-[#0a1128] transition-colors"
+              className="bg-[#dc5f18] px-4 py-2 rounded"
             >
               Connexion
             </Link>

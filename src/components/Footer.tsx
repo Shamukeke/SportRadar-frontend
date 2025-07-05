@@ -63,21 +63,21 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-white">
           <div className="flex justify-center space-x-4 mb-4">
-            <a href="/mentions-legales" className="hover:text-sky-400 transition-colors">
+            <a href="/mentions-legales" className="hover:text-[#0a1128] transition-colors">
               Mentions légales
             </a>
             <span>|</span>
-            <a href="/politique-de-confidentialite" className="hover:text-sky-400 transition-colors">
+            <a href="/politique-de-confidentialite" className="hover:text-[#0a1128] transition-colors">
               Politique de confidentialité
             </a>
             <span>|</span>
-            <a href="/contact" className="hover:text-sky-400 transition-colors">
+            <a href="/contact" className="hover:text-[#0a1128] transition-colors">
               Contact
             </a>
             <span>|</span>
-            <a href="/faq" className="hover:text-sky-400 transition-colors">
+            <a href="/faq" className="hover:text-[#0a1128] transition-colors">
               FAQ
             </a>
           </div>
