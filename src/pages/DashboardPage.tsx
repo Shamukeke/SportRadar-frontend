@@ -181,7 +181,7 @@ const DashboardPage: React.FC = () => {
           </ul>
         </div>
 
-        {/* Calendrier */}
+        {/* Calendriers */}
         <div className="mb-8">
           <h2 className="text-lg font-semibold text-[#0a1128] mb-2">Calendrier</h2>
           <Calendar onChange={setDate} value={date} />
