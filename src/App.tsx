@@ -21,6 +21,10 @@ import BusinessActivitiesPage from './pages/BusinessActivitiesPage';
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import GestionEquipePage from './pages/features/GestionEquipePage';
+import AnalyticsAvancesPage from './pages/features/AnalyticsAvancesPage';
+import PlanificationFlexiblePage from './pages/features/PlanificationFlexiblePage';
+import ConformiteRgpdPage from './pages/features/ConformiteRgpdPage';
 
 function App() {
   return (
@@ -109,6 +113,10 @@ function App() {
                   </PrivateRoute>
                 }
               />
+              <Route path="/features/gestion-equipe" element={<GestionEquipePage />} />
+              <Route path="/features/analytics-avances" element={<AnalyticsAvancesPage />} />
+              <Route path="/features/planification-flexible" element={<PlanificationFlexiblePage />} />
+              <Route path="/features/conformite-rgpd" element={<ConformiteRgpdPage />} />
 
               {/* 404 */}
               <Route path="*" element={<NotFoundPage />} />

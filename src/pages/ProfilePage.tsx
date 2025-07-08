@@ -2,24 +2,15 @@ import React, { useEffect, useState, ChangeEvent } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axiosInstance from '../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
+import avatarOptions from '../assets/avatars';
 
-// Import direct des avatars pour garantir leur disponibilité
-import defaultAvatarImg from '../assets/avatars/default-avatar.png';
-import avatar1Img from '../assets/avatars/avatar1.png';
-import avatar2Img from '../assets/avatars/avatar2.png';
-import avatar3Img from '../assets/avatars/avatar3.png';
-import avatar4Img from '../assets/avatars/avatar4.png';
-import avatar5Img from '../assets/avatars/avatar5.png';
-
-// Création d'un objet pour référencer facilement les avatars
-const avatarOptions = {
-  default: defaultAvatarImg,
-  avatar1: avatar1Img,
-  avatar2: avatar2Img,
-  avatar3: avatar3Img,
-  avatar4: avatar4Img,
-  avatar5: avatar5Img,
-};
+const locationOptions = [
+  'Paris',
+  'Lyon',
+  'Marseille',
+  'Bordeaux',
+  'Nice'
+];
 
 const allObjectives = [
   'Perte de poids',
@@ -48,27 +39,24 @@ const ProfilePage: React.FC = () => {
     level: '',
     objectives: []
   });
-  const [status, setStatus] = useState<string>('');
-  const [avatarPreview, setAvatarPreview] = useState<string>(defaultAvatarImg);
-  const [uploading, setUploading] = useState<boolean>(false);
-  const [saving, setSaving] = useState<boolean>(false);
+  const [status, setStatus] = useState('');
+  const [avatarPreview, setAvatarPreview] = useState(avatarOptions.default);
+  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated || !user) return;
-    
     setPreferences({
-      activities: [],
+      activities: user.preferences?.activities || [],
       location: user.preferences?.location || '',
       level: user.preferences?.level || '',
-      objectives: (user.preferences as any)?.objectives || []
+      objectives: user.preferences?.objectives || []
     });
-    
-    // Utilise l'avatar de l'utilisateur ou un avatar par défaut
-    const userAvatar = user.avatar || defaultAvatarImg;
-    setAvatarPreview(avatarOptions[userAvatar as keyof typeof avatarOptions] || userAvatar);
+    const key = user.avatar || 'default';
+    setAvatarPreview(avatarOptions[key as keyof typeof avatarOptions] || avatarOptions.default);
   }, [user, isAuthenticated]);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
     setPreferences(prev => ({ ...prev, [name]: value }));
   };
@@ -84,61 +72,52 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleAvatarUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
-  
-  const form = new FormData();
-  form.append('avatar', file);
-  setUploading(true);
-  setStatus('');
-  
-  // Prévisualisation immédiate
-  setAvatarPreview(URL.createObjectURL(file));
-  
-  try {
-    await updateUser({ avatar: form }); // Utilise directement updateUser
-    setStatus('Avatar mis à jour ✔️');
-  } catch (err: any) {
-    console.error(err.response || err);
-    setStatus(`Échec upload avatar ❌ (${err.response?.data?.avatar || err.message})`);
-    setAvatarPreview(user?.avatar || defaultAvatarImg);
-  } finally {
-    setUploading(false);
-  }
-};
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const form = new FormData();
+    form.append('avatar', file);
+    setUploading(true);
+    setStatus('');
+    setAvatarPreview(URL.createObjectURL(file));
+    try {
+      await updateUser(form);
+      setStatus('Avatar mis à jour ✔️');
+    } catch (err: any) {
+      console.error(err);
+      setStatus('Échec upload avatar ❌');
+    } finally {
+      setUploading(false);
+    }
+  };
 
-const handleAvatarSelect = async (avatarKey: string) => {
-  if (uploading || saving) return;
-  
-  setUploading(true);
-  setStatus('');
-  
-  const selectedAvatar = avatarOptions[avatarKey as keyof typeof avatarOptions];
-  setAvatarPreview(selectedAvatar);
-  
-  try {
-    await updateUser({ avatar: avatarKey }); // Utilise directement updateUser
-    setStatus('Avatar mis à jour ✔️');
-  } catch (err: any) {
-    console.error(err.response || err);
-    setStatus(`Échec sélection avatar ❌ (${err.response?.data?.avatar || err.message})`);
-    setAvatarPreview(user?.avatar || defaultAvatarImg);
-  } finally {
-    setUploading(false);
-  }
-};
+  const handleAvatarSelect = async (key: string) => {
+    if (uploading || saving) return;
+    setUploading(true);
+    setStatus('');
+    const url = avatarOptions[key as keyof typeof avatarOptions];
+    setAvatarPreview(url);
+    try {
+      await updateUser({ avatar: key });
+      setStatus('Avatar mis à jour ✔️');
+    } catch (err: any) {
+      console.error(err);
+      setStatus('Échec sélection avatar ❌');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus('');
     setSaving(true);
+    setStatus('');
     try {
       await axiosInstance.patch('/me/', { preferences });
       setStatus('Préférences mises à jour ✔️');
       navigate('/activities');
     } catch (err: any) {
-      console.error(err.response || err);
-      setStatus(`Erreur mise à jour ❌ (${err.response?.data?.message || err.message})`);
+      console.error(err);
+      setStatus('Erreur mise à jour ❌');
     } finally {
       setSaving(false);
     }
@@ -157,7 +136,6 @@ const handleAvatarSelect = async (avatarKey: string) => {
             alt="Avatar"
             className="w-32 h-32 rounded-full border-4 border-white object-cover shadow-md"
           />
-
           <label className="mt-3 inline-block bg-[#0a1128] text-white px-4 py-2 rounded cursor-pointer">
             {uploading ? 'Upload...' : 'Changer l’avatar'}
             <input
@@ -168,13 +146,12 @@ const handleAvatarSelect = async (avatarKey: string) => {
               disabled={uploading || saving}
             />
           </label>
-
           <div className="mt-4 grid grid-cols-5 gap-2">
             {Object.entries(avatarOptions).map(([key, img]) => (
               <img
                 key={key}
                 src={img}
-                alt={`Avatar ${key}`}
+                alt={key}
                 className={`w-12 h-12 rounded-full cursor-pointer border-2 ${
                   avatarPreview === img ? 'border-[#dc5f18]' : 'border-transparent'
                 }`}
@@ -192,15 +169,18 @@ const handleAvatarSelect = async (avatarKey: string) => {
         <form onSubmit={handleSubmit} className="mt-6 space-y-6">
           <div>
             <label className="block mb-1 font-medium">Localisation</label>
-            <input
-              type="text"
+            <select
               name="location"
               value={preferences.location}
               onChange={handleChange}
-              placeholder="Paris, Lyon…"
               className="w-full border rounded px-3 py-2"
               disabled={saving}
-            />
+            >
+              <option value="">-- Sélectionner une ville --</option>
+              {locationOptions.map(v => (
+                <option key={v} value={v}>{v}</option>
+              ))}
+            </select>
           </div>
 
           <div>

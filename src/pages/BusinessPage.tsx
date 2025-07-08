@@ -1,362 +1,368 @@
-import React from 'react';
-import { 
-  Users, 
-  TrendingUp, 
-  Shield, 
-  Calendar,
-  Award,
+// File: src/pages/BusinessPage.tsx
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import {
+  Users,
   BarChart3,
-  Heart,
+  Calendar as CalendarIcon,
+  Shield,
   CheckCircle,
   ArrowRight,
-  Building,
-  Target,
-  Zap
+  Award
 } from 'lucide-react';
+import Newsletter from '../components/Newsletter';
+
+const features = [
+  {
+    icon: Users,
+    title: "Gestion d'équipe",
+    path: '/features/gestion-equipe',
+    description: 'Planifiez et suivez les activités de vos collaborateurs',
+    details: [
+      'Tableau de bord récapitulatif des sessions planifiées',
+      'Assignation des tâches et des créneaux par collaborateur',
+      'Suivi en temps réel des présences et des performances',
+      'Rapports automatisés envoyés par e-mail'
+    ]
+  },
+  {
+    icon: BarChart3,
+    title: 'Analytics avancés',
+    path: '/features/analytics-avances',
+    description: "Tableaux de bord détaillés sur l'engagement et la satisfaction",
+    details: [
+      'Visualisation des tendances sur plusieurs périodes',
+      'Segmentation par équipe et par activité',
+      'Export des données au format CSV ou PDF'
+    ]
+  },
+  {
+    icon: CalendarIcon,
+    title: 'Planification flexible',
+    path: '/features/planification-flexible',
+    description: 'Créez des créneaux sur mesure selon vos besoins',
+    details: [
+      'Glisser-déposer pour réorganiser le planning',
+      'Notifications automatiques aux participants',
+      'Intégration avec Google Calendar et Outlook'
+    ]
+  },
+  {
+    icon: Shield,
+    title: 'Conformité RGPD',
+    path: '/features/conformite-rgpd',
+    description: 'Protection totale des données de vos employés',
+    details: [
+      'Stockage chiffré des informations sensibles',
+      'Gestion des droits d’accès et des preuves de consentement',
+      'Journalisation des opérations pour audit'
+    ]
+  }
+];
+
+const benefits = [
+  'Réduction de l’absentéisme',
+  'Bien-être au travail accru',
+  'Cohésion d’équipe renforcée',
+  'Productivité améliorée',
+  'Attractivité employeur',
+  'ROI mesurable'
+];
+
+const plans = [
+  {
+    name: 'Starter',
+    price: '29€',
+    period: 'mois',
+    popular: false,
+    features: ['Jusqu’à 25 employés', 'Activités de base', 'Support email', 'Rapports mensuels']
+  },
+  {
+    name: 'Professional',
+    price: '79€',
+    period: 'mois',
+    popular: true,
+    features: [
+      'Jusqu’à 100 employés',
+      'Activités premium',
+      'Support prioritaire',
+      'Analytics avancés',
+      'API complète'
+    ]
+  },
+  {
+    name: 'Enterprise',
+    price: 'Sur mesure',
+    period: '',
+    popular: false,
+    features: [
+      'Employés illimités',
+      'Toutes les activités',
+      'Account manager dédié',
+      'Rapports personnalisés',
+      'Intégration SIRH'
+    ]
+  }
+];
+
+const testimonials = [
+  {
+    company: 'TechFlow',
+    logo: '🚀',
+    text: 'SportRadar Pro a transformé notre culture d’entreprise : +85 % de participation !',
+    author: 'Marie Dubois, DRH'
+  },
+  {
+    company: 'GreenCorp',
+    logo: '🌱',
+    text: "La cohésion d'équipe n’a jamais été aussi forte. Un vrai boost !",
+    author: 'Thomas Martin, CEO'
+  }
+];
 
 const BusinessPage: React.FC = () => {
-  const features = [
-    {
-      icon: Users,
-      title: 'Gestion d\'équipe',
-      description: 'Planifiez et suivez les activités de tous vos collaborateurs'
-    },
-    {
-      icon: BarChart3,
-      title: 'Analytics avancés',
-      description: 'Tableaux de bord détaillés sur l\'engagement et la satisfaction'
-    },
-    {
-      icon: Calendar,
-      title: 'Planification flexible',
-      description: 'Organisez des créneaux sur mesure selon vos besoins'
-    },
-    {
-      icon: Shield,
-      title: 'Conformité RGPD',
-      description: 'Protection totale des données de vos employés'
-    }
-  ];
-
-  const benefits = [
-    'Réduction de l\'absentéisme',
-    'Amélioration du bien-être au travail',
-    'Renforcement de la cohésion d\'équipe',
-    'Augmentation de la productivité',
-    'Attractivité employeur renforcée',
-    'ROI mesurable et quantifiable'
-  ];
-
-  const plans = [
-    {
-      name: 'Starter',
-      price: '29€',
-      period: 'par mois',
-      description: 'Parfait pour les petites équipes',
-      features: [
-        'Jusqu\'à 25 employés',
-        'Activités de base',
-        'Support email',
-        'Rapports mensuels'
-      ],
-      popular: false
-    },
-    {
-      name: 'Professional',
-      price: '79€',
-      period: 'par mois',
-      description: 'Idéal pour les entreprises en croissance',
-      features: [
-        'Jusqu\'à 100 employés',
-        'Activités premium',
-        'Support prioritaire',
-        'Analytics avancés',
-        'Événements sur mesure',
-        'API complète'
-      ],
-      popular: true
-    },
-    {
-      name: 'Enterprise',
-      price: 'Sur mesure',
-      period: '',
-      description: 'Solution complète pour les grandes organisations',
-      features: [
-        'Employés illimités',
-        'Toutes les activités',
-        'Account manager dédié',
-        'Rapports personnalisés',
-        'Intégration SIRH',
-        'Formation équipes'
-      ],
-      popular: false
-    }
-  ];
-
-  const testimonials = [
-    {
-      company: 'TechFlow',
-      logo: '🚀',
-      text: 'SportRadar a révolutionné notre approche du bien-être. 85% de participation en 3 mois !',
-      author: 'Marie Dubois, DRH'
-    },
-    {
-      company: 'GreenCorp',
-      logo: '🌱',
-      text: 'L\'impact sur la cohésion d\'équipe est remarquable. Un investissement qui en vaut la peine.',
-      author: 'Thomas Martin, CEO'
-    }
-  ];
+  const [selectedFeature, setSelectedFeature] = useState<string | null>(null);
+  const closeModal = () => setSelectedFeature(null);
 
   return (
-    <div className="min-h-screen #0a1128">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-sky-600 via-sky-700 to-emerald-600 text-gray-200 py-20 lg:py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 #0a1128/20 rounded-2xl flex items-center justify-center">
-                <Building className="w-8 h-8" />
-              </div>
-            </div>
-            <h1 className="text-4xl lg:text-6xl font-bold mb-6">
-              Bien-être entreprise<br />
-              <span className="text-sky-200">nouvelle génération</span>
-            </h1>
-            <p className="text-xl text-sky-100 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Transformez la culture de votre entreprise avec SportRadar Pro. 
-              Des solutions sur mesure pour le bien-être de vos équipes, 
-              avec des résultats mesurables et un impact durable.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="#0a1128 text-sky-700 px-8 py-4 rounded-xl text-lg font-semibold hover:#0a1128 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2">
-                <span>Demander une démo</span>
-                <ArrowRight className="w-5 h-5" />
-              </button>
-              <button className="border-2 border-white text-gray-200 px-8 py-4 rounded-xl text-lg font-semibold hover:#0a1128 hover:text-sky-700 transition-all duration-300">
-                Voir les tarifs
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+    <div className="min-h-screen bg-[#C7C5C5] py-10 px-4">
+      <div className="max-w-6xl mx-auto space-y-16">
 
-      {/* Stats Section */}
-      <section className="py-16 #0a1128">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-sky-600">500+</div>
-              <div className="text-gray-600">Entreprises partenaires</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-emerald-600">85%</div>
-              <div className="text-gray-600">Taux de participation moyen</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-orange-600">-32%</div>
-              <div className="text-gray-600">Réduction de l'absentéisme</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-4xl font-bold text-purple-600">4.8/5</div>
-              <div className="text-gray-600">Satisfaction employés</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 #0a1128">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-400 mb-4">
-              Une plateforme complète pour vos équipes
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Tous les outils nécessaires pour créer une culture d'entreprise axée sur le bien-être
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <div
-                  key={index}
-                  className="group p-8 #0a1128 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+        {/* Hero Section */}
+        <section className="bg-gradient-to-r from-[#0a1128] to-[#14213d] text-white rounded-2xl p-8">
+          <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-8">
+            {/* Texte et Boutons */}
+            <div className="lg:w-1/2 space-y-6">
+              <motion.h1
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="text-4xl lg:text-6xl font-extrabold leading-tight"
+              >
+                Le bien-être <span className="text-[#dc5f18]">entreprise</span><br />nouvelle génération
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+                className="text-lg text-gray-200"
+              >
+                SportRadar Pro vous offre une plateforme complète pour booster
+                l’engagement, suivre l’impact et garantir la conformité RGPD,
+                le tout en temps réel.
+              </motion.p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link
+                  to="/request-demo"
+                  className="bg-[#dc5f18] hover:brightness-110 transition px-6 py-3 rounded-lg font-semibold flex items-center justify-center space-x-2"
                 >
-                  <div className="w-14 h-14 bg-gradient-to-r from-sky-500 to-emerald-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Icon className="w-7 h-7 text-gray-200" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-400 mb-3">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Benefits Section */}
-      <section className="py-20 #0a1128">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-400 mb-6">
-                Des bénéfices concrets pour votre entreprise
-              </h2>
-              <p className="text-gray-600 mb-8 text-lg">
-                Notre approche scientifique du bien-être en entreprise génère des résultats 
-                mesurables et durables pour vos équipes et votre organisation.
-              </p>
-              
-              <div className="space-y-4">
-                {benefits.map((benefit, index) => (
-                  <div key={index} className="flex items-center space-x-3">
-                    <CheckCircle className="w-6 h-6 text-emerald-500 flex-shrink-0" />
-                    <span className="text-gray-400 font-medium">{benefit}</span>
+                  <span>Voir la démo</span>
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+                <Link
+                  to="#pricing"
+                  className="border-2 border-[#dc5f18] hover:bg-[#dc5f18] hover:text-white transition px-6 py-3 rounded-lg font-semibold text-[#dc5f18] text-center"
+                >
+                  Obtenir les tarifs
+                </Link>
+              </div>
+              {/* Illustrations de bénéfices dans le hero */}
+              <div className="grid grid-cols-3 gap-4 pt-6">
+                {benefits.slice(0, 3).map((b, i) => (
+                  <div key={i} className="flex items-center space-x-2">
+                    <CheckCircle className="w-6 h-6 text-[#dc5f18] flex-shrink-0" />
+                    <span className="text-sm text-gray-200">{b}</span>
                   </div>
                 ))}
               </div>
             </div>
+            {/* Démo Vidéo */}
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              className="lg:w-1/2 bg-black rounded-lg overflow-hidden shadow-lg"
+            >
+              {/* Replace src with actual demo video or GIF */}
+              <video
+                src="/videos/business-demo.mp4"
+                controls
+                className="w-full h-auto"
+              />
+            </motion.div>
+          </div>
+        </section>
 
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-sky-50 p-6 rounded-2xl text-center">
-                <TrendingUp className="w-12 h-12 text-sky-600 mx-auto mb-4" />
-                <div className="text-2xl font-bold text-sky-700">+23%</div>
-                <div className="text-sm text-sky-600">Productivité</div>
+        {/* Stats Section */}
+        <section className="bg-white shadow-lg rounded-2xl p-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="text-3xl font-bold text-[#dc5f18]">500+</div>
+              <div className="text-gray-600">Entreprises clientes</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-[#0a1128]">85%</div>
+              <div className="text-gray-600">Taux de participation</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-[#dc5f18]">32%</div>
+              <div className="text-gray-600">Réduction absentéisme</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-[#0a1128]">4.8/5</div>
+              <div className="text-gray-600">Satisfaction employé</div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section avec hover et Link */}
+        <section className="bg-white shadow-lg rounded-2xl p-8">
+          <h2 className="text-2xl font-bold text-[#0a1128] mb-6 text-center">
+            Une plateforme complète
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map((f, i) => {
+              const Icon = f.icon;
+              return (
+                <Link
+                  key={i}
+                  to={f.path}
+                  className="group block relative p-6 rounded-lg border border-gray-200 bg-gray-50 overflow-hidden"
+                >
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1, duration: 0.5 }}
+                    whileHover={{ scale: 1.02 }}
+                    className="relative z-10"
+                  >
+                    <div className="w-12 h-12 flex items-center justify-center bg-[#dc5f18] rounded-md mb-4">
+                      <Icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="font-semibold text-[#0a1128] mb-2 text-lg">
+                      {f.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {f.description}
+                    </p>
+                  </motion.div>
+
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+        {/* Benefits Section */}
+        <section className="bg-white shadow-lg rounded-2xl p-8">
+          <div className="flex flex-col lg:flex-row gap-8">
+            <div className="lg:w-1/2">
+              <h2 className="text-2xl font-bold text-[#0a1128] mb-4">
+                Des bénéfices concrets
+              </h2>
+              <ul className="space-y-3">
+                {benefits.map((b, i) => (
+                  <li key={i} className="flex items-center space-x-3">
+                    <CheckCircle className="w-6 h-6 text-[#dc5f18]" />
+                    <span className="text-gray-600">{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="lg:w-1/2 grid grid-cols-2 gap-6">
+              {/* Mini-stats if desired */}
+              <div className="p-4 bg-gray-50 rounded-lg text-center">
+                <CalendarIcon className="w-10 h-10 text-[#0a1128] mx-auto mb-2" />
+                <div className="font-bold text-[#dc5f18] text-2xl">+23%</div>
+                <div className="text-gray-600 text-sm">Productivité</div>
               </div>
-              <div className="bg-emerald-50 p-6 rounded-2xl text-center">
-                <Heart className="w-12 h-12 text-emerald-600 mx-auto mb-4" />
-                <div className="text-2xl font-bold text-emerald-700">92%</div>
-                <div className="text-sm text-emerald-600">Bien-être</div>
-              </div>
-              <div className="bg-orange-50 p-6 rounded-2xl text-center">
-                <Target className="w-12 h-12 text-orange-600 mx-auto mb-4" />
-                <div className="text-2xl font-bold text-orange-700">-45%</div>
-                <div className="text-sm text-orange-600">Turnover</div>
-              </div>
-              <div className="bg-purple-50 p-6 rounded-2xl text-center">
-                <Zap className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-                <div className="text-2xl font-bold text-purple-700">3.2x</div>
-                <div className="text-sm text-purple-600">ROI moyen</div>
+              <div className="p-4 bg-gray-50 rounded-lg text-center">
+                <Users className="w-10 h-10 text-[#0a1128] mx-auto mb-2" />
+                <div className="font-bold text-[#dc5f18] text-2xl">92%</div>
+                <div className="text-gray-600 text-sm">Engagement</div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Pricing Section */}
-      <section className="py-20 #0a1128">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-400 mb-4">
-              Des offres adaptées à votre taille
-            </h2>
-            <p className="text-gray-600 text-lg">
-              Choisissez la formule qui correspond le mieux aux besoins de votre entreprise
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {plans.map((plan, index) => (
+        {/* Pricing Section */}
+        <section id="pricing" className="bg-white shadow-lg rounded-2xl p-8">
+          <h2 className="text-2xl font-bold text-[#0a1128] mb-6 text-center">
+            Choisissez votre formule
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {plans.map((plan, i) => (
               <div
-                key={index}
-                className={`relative #0a1128 rounded-2xl shadow-sm p-8 ${
-                  plan.popular 
-                    ? 'border-2 border-sky-500 transform scale-105' 
-                    : 'border border-gray-200'
-                }`}
+                key={i}
+                className={`p-6 rounded-lg transition border ${plan.popular ? 'border-[#dc5f18]' : 'border-gray-200'
+                  }`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-sky-500 text-gray-200 px-4 py-2 rounded-full text-sm font-semibold">
-                      Le plus populaire
-                    </span>
-                  </div>
+                  <span className="inline-block mb-4 bg-[#dc5f18] text-white px-3 py-1 rounded-full text-sm">
+                    Populaire
+                  </span>
                 )}
-
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold text-gray-400 mb-2">{plan.name}</h3>
-                  <div className="mb-4">
-                    <span className="text-4xl font-bold text-gray-400">{plan.price}</span>
-                    {plan.period && <span className="text-gray-600 ml-2">{plan.period}</span>}
-                  </div>
-                  <p className="text-gray-600">{plan.description}</p>
+                <h3 className="text-xl font-semibold text-[#0a1128] mb-2">{plan.name}</h3>
+                <div className="text-3xl font-bold text-[#dc5f18] mb-4">
+                  {plan.price}
+                  {plan.period && <span className="text-gray-600 text-lg">/{plan.period}</span>}
                 </div>
-
-                <ul className="space-y-4 mb-8">
-                  {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center space-x-3">
-                      <CheckCircle className="w-5 h-5 text-emerald-500 flex-shrink-0" />
-                      <span className="text-gray-400">{feature}</span>
+                <ul className="space-y-2 mb-6 text-gray-600 text-sm">
+                  {plan.features.map((f, idx) => (
+                    <li key={idx} className="flex items-center space-x-2">
+                      <CheckCircle className="w-4 h-4 text-[#dc5f18]" />
+                      <span>{f}</span>
                     </li>
                   ))}
                 </ul>
-
-                <button
-                  className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${
-                    plan.popular
-                      ? '#e63946 text-gray-200 hover:brightness-110'
-                      : '#0a1128 text-gray-400 hover:#0a1128'
-                  }`}
+                <Link
+                  to={plan.price === 'Sur mesure' ? '/contact' : '/signup'}
+                  className="block text-center bg-[#dc5f18] text-white px-4 py-2 rounded-lg font-semibold hover:brightness-110 transition"
                 >
-                  {plan.price === 'Sur mesure' ? 'Nous contacter' : 'Commencer l\'essai'}
-                </button>
+                  {plan.price === 'Sur mesure' ? 'Nous contacter' : 'Commencer'}
+                </Link>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Testimonials */}
-      <section className="py-20 #0a1128">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-400 mb-4">
-              Ils nous font confiance
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="#0a1128 p-8 rounded-2xl">
-                <div className="flex items-center mb-6">
-                  <div className="w-12 h-12 #0a1128 rounded-lg flex items-center justify-center text-2xl mr-4">
-                    {testimonial.logo}
-                  </div>
-                  <div className="font-bold text-gray-400 text-lg">{testimonial.company}</div>
-                </div>
-                <p className="text-gray-400 mb-6 text-lg italic">"{testimonial.text}"</p>
-                <div className="text-gray-600">{testimonial.author}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-sky-600 to-emerald-600 text-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Award className="w-16 h-16 text-gray-200 mx-auto mb-6" />
-          <h2 className="text-3xl font-bold mb-4">
-            Prêt à transformer votre entreprise ?
+        {/* Testimonials & Newsletter */}
+        <section className="bg-white shadow-lg rounded-2xl p-8">
+          <h2 className="text-2xl font-bold text-[#0a1128] mb-6 text-center">
+            Ils nous font confiance
           </h2>
-          <p className="text-xl text-sky-100 mb-8">
-            Rejoignez les centaines d'entreprises qui ont déjà fait le choix du bien-être
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="#0a1128 text-sky-700 px-8 py-4 rounded-xl text-lg font-semibold hover:#0a1128 transition-all duration-300 transform hover:scale-105 shadow-lg">
-              Demander une démo gratuite
-            </button>
-            <button className="border-2 border-white text-gray-200 px-8 py-4 rounded-xl text-lg font-semibold hover:#0a1128 hover:text-sky-700 transition-all duration-300">
-              Parler à un expert
-            </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {testimonials.map((t, i) => (
+              <div key={i} className="p-6 border border-gray-200 rounded-lg">
+                <div className="flex items-center mb-4">
+                  <span className="text-2xl mr-3">{t.logo}</span>
+                  <h3 className="text-lg font-semibold text-[#0a1128]">{t.company}</h3>
+                </div>
+                <p className="text-gray-600 italic mb-2">"{t.text}"</p>
+                <p className="text-gray-800 font-medium">{t.author}</p>
+              </div>
+            ))}
           </div>
-        </div>
-      </section>
+          <Newsletter />
+        </section>
+
+        {/* Call to Action */}
+        <section className="bg-white shadow-lg rounded-2xl p-8 text-center">
+          <Award className="w-12 h-12 text-[#dc5f18] mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-[#0a1128] mb-4">
+            Prêt·e à booster le bien-être de vos équipes ?
+          </h2>
+          <Link
+            to="/request-demo"
+            className="inline-block bg-[#dc5f18] text-white px-6 py-3 rounded-lg font-semibold hover:brightness-110 transition"
+          >
+            Demander une démo gratuite
+          </Link>
+        </section>
+
+      </div>
     </div>
   );
-};
+}
 
 export default BusinessPage;
