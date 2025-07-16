@@ -1,8 +1,14 @@
+// File: src/pages/LoginPage.tsx
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Heart, User, Building, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import axiosInstance from '../api/axiosInstance';
+
+interface Me {
+  is_staff: boolean;
+  type: 'personal' | 'business';
+}
 
 const LoginPage: React.FC = () => {
   const [accountType, setAccountType] = useState<'personal' | 'business'>('personal');
@@ -19,6 +25,9 @@ const LoginPage: React.FC = () => {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  // si on a été redirigé ici depuis ActivitiesPage
+  const from = (location.state as any)?.from as string | undefined;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,55 +36,59 @@ const LoginPage: React.FC = () => {
 
     try {
       if (isLogin) {
-        // LOGIN : obtention du JWT
         await login(formData.email, formData.password);
       } else {
-        // SIGNUP : vérif mot de passe
         if (formData.password !== formData.confirmPassword) {
           setErrorMsg("Les mots de passe ne correspondent pas.");
           setLoading(false);
           return;
         }
-        // INSCRIPTION
         await axiosInstance.post('/register/', {
           email: formData.email,
           username: formData.name,
           password: formData.password,
           type: accountType,
-          preferences: {
-            activities: ['yoga'],
-            location: 'Paris',
-            level: 'débutant'
-          }
+          preferences: { activities: ['yoga'], location: 'Paris', level: 'débutant' }
         });
-        // une fois inscrit, on se log automatiquement
         await login(formData.email, formData.password);
       }
 
-      navigate('/profile');
+      // si on vient d'une page précise, on y retourne
+      if (from) {
+        navigate(from, { replace: true });
+        return;
+      }
+
+      // sinon on récupère le profil pour déterminer la redirection
+      const { data: me } = await axiosInstance.get<Me>('/me/');
+      if (me.is_staff) {
+        navigate('/admin', { replace: true });
+      } else if (me.type === 'business') {
+        navigate('/business', { replace: true });
+      } else {
+        navigate('/profile', { replace: true });
+      }
+
     } catch (err: any) {
-      console.error('Signup error:', err.response?.status, err.response?.data);
-      const msg = err.response?.data?.detail
-           || JSON.stringify(err.response?.data)
-           || 'Erreur serveur';
-      setErrorMsg(msg);
+      console.error('Auth error:', err);
+      setErrorMsg(
+        err.response?.data?.detail ||
+        JSON.stringify(err.response?.data) ||
+        'Erreur serveur'
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   return (
     <div className="min-h-screen bg-[#C7C5C5] py-12">
       <div className="max-w-md mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          {/* HEADER */}
           <div className="px-6 py-8 bg-[#0a1128] text-gray-400 text-center">
             <Link to="/" className="inline-flex items-center mb-4">
               <Heart className="w-8 h-8 text-[#dc5f18]" />
@@ -89,7 +102,6 @@ const LoginPage: React.FC = () => {
             </p>
           </div>
 
-          {/* SWITCH PERSONAL / BUSINESS - only for signup */}
           {!isLogin && (
             <div className="px-6 py-4 border-b border-[#dc5f18]">
               <div className="flex rounded-lg bg-[#0a1128] p-1">
@@ -98,11 +110,10 @@ const LoginPage: React.FC = () => {
                     key={type}
                     type="button"
                     onClick={() => setAccountType(type as 'personal' | 'business')}
-                    className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                      accountType === type
+                    className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md text-sm font-medium transition-all ${accountType === type
                         ? 'bg-white text-[#0a1128]'
                         : 'text-[#C7C5C5] hover:bg-[#dc5f18] hover:text-white'
-                    }`}
+                      }`}
                   >
                     {type === 'personal' ? <User className="w-4 h-4" /> : <Building className="w-4 h-4" />}
                     <span className="capitalize">
@@ -113,12 +124,13 @@ const LoginPage: React.FC = () => {
               </div>
             </div>
           )}
-{errorMsg && (
-  <div className="bg-red-100 text-red-800 p-3 rounded mb-4">
-    {errorMsg}
-  </div>
-)}
-          {/* FORM */}
+
+          {errorMsg && (
+            <div className="bg-red-100 text-red-800 p-3 rounded mb-4">
+              {errorMsg}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="px-6 py-6 space-y-4">
             {!isLogin && (
               <div>
@@ -139,9 +151,7 @@ const LoginPage: React.FC = () => {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
@@ -158,9 +168,7 @@ const LoginPage: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Mot de passe
-              </label>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
@@ -203,24 +211,15 @@ const LoginPage: React.FC = () => {
               </div>
             )}
 
-            {errorMsg && (
-              <p className="text-sm text-red-600">{errorMsg}</p>
-            )}
-
             <button
               type="submit"
               disabled={loading}
               className="w-full py-2 bg-[#0a1128] text-white rounded-lg font-semibold hover:brightness-110 disabled:opacity-50"
             >
-              {loading
-                ? 'Chargement...'
-                : isLogin
-                  ? 'Se connecter'
-                  : 'Créer mon compte'}
+              {loading ? 'Chargement...' : isLogin ? 'Se connecter' : 'Créer mon compte'}
             </button>
           </form>
 
-          {/* Toggle inscription/connexion */}
           <div className="px-6 py-4 text-center text-gray-600">
             {isLogin ? (
               <>

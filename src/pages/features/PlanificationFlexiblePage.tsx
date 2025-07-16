@@ -40,7 +40,7 @@ const PlanificationFlexiblePage: React.FC = () => {
                 {/* Introduction courte */}
                 <p className="text-gray-700">
                     Créez et ajustez facilement vos plannings grâce à des outils intuitifs
-                    et automatisés qui s'adaptent à vos besoins.
+                    et automatisés qui s'adaptent à vos besoins. (En construction)
                 </p>
 
                 {/* Liste des points clés */}
@@ -80,19 +80,7 @@ const PlanificationFlexiblePage: React.FC = () => {
                     </section>
                 </div>
 
-                {/* Illustrations */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <img
-                        src="/images/features/planning-dragdrop.png"
-                        alt="Drag & drop scheduling"
-                        className="w-full h-auto rounded-lg shadow"
-                    />
-                    <img
-                        src="/images/features/planning-integration.png"
-                        alt="Calendar integration"
-                        className="w-full h-auto rounded-lg shadow"
-                    />
-                </div>
+
             </div>
         </div>
     );

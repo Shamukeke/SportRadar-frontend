@@ -2,30 +2,40 @@
 import axios from 'axios';
 import { refreshAccessToken } from '../utils/auth';
 
+const PUBLIC_ENDPOINTS = [
+  '/register/',
+  '/token/',
+  '/token/refresh/',
+  '/weather/',                    // API météo
+  '/places/',                     // liste des lieux labellisés
+  '/activities/recommendations/', // recommandations
+];
+
 const axiosInstance = axios.create({
   baseURL: 'http://localhost:8000/api/',
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Interceptor pour ajouter automatiquement access_token,
-// sauf pour les endpoints d'auth/inscription.
+// Request interceptor
 axiosInstance.interceptors.request.use(async (config) => {
   const url = config.url || '';
-  // on skippe register, token et token/refresh
-  if (!url.endsWith('/register/') && !url.endsWith('/token/') && !url.endsWith('/token/refresh/')) {
+  // Si l'URL commence par l'un des endpoints publics, on skippe le token
+  const isPublic = PUBLIC_ENDPOINTS.some(ep => url.startsWith(ep));
+  if (!isPublic) {
     const token = localStorage.getItem('access');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      (config.headers as any)['Authorization'] = `Bearer ${token}`;
     }
   }
   return config;
 });
 
-// Interceptor pour gérer automatiquement les erreurs 401 (unauthorized)
+// Response interceptor pour rafraîchir automatiquement le token si 401
 axiosInstance.interceptors.response.use(
   response => response,
   async error => {
     const originalRequest = error.config;
+    // Si 401 et qu'on n'a pas déjà retry, et qu'on a un refresh token
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
@@ -34,8 +44,8 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
       const newAccess = await refreshAccessToken();
       if (newAccess) {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${newAccess}`;
-        originalRequest.headers['Authorization'] = `Bearer ${newAccess}`;
+        // Mettre à jour le header pour retry
+        originalRequest.headers.Authorization = `Bearer ${newAccess}`;
         return axiosInstance(originalRequest);
       }
     }

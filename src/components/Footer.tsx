@@ -9,13 +9,13 @@ const Footer: React.FC = () => {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-  <img
-    src="../images/hero/Logo_Radar_Blanc.png"
-    alt="SportRadar Logo"
-    className="w-20 h-12"
-  />
- 
-</div>
+              <img
+                src="../images/hero/Logo_Radar_Blanc.png"
+                alt="SportRadar Logo"
+                className="w-35 h-12"
+              />
+
+            </div>
             <p className="text-sm text-gray-400">
               Votre compagnon bien-être pour une pratique sportive accessible et personnalisée.
             </p>
@@ -26,7 +26,7 @@ const Footer: React.FC = () => {
             <h3 className="text-gray-200 font-semibold mb-4">Navigation</h3>
             <ul className="space-y-2 text-sm">
               <li><a href="/" className="hover:text-sky-400 transition-colors">Accueil</a></li>
-              <li><a href="/activities" className="hover:text-sky-400 transition-colors">Activités</a></li>
+
               <li><a href="/business" className="hover:text-sky-400 transition-colors">Entreprises</a></li>
               <li><a href="/dashboard" className="hover:text-sky-400 transition-colors">Mon espace</a></li>
             </ul>
@@ -36,10 +36,10 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-gray-200 font-semibold mb-4">Services</h3>
             <ul className="space-y-2 text-sm">
-              <li><a href="#" className="hover:text-sky-400 transition-colors">Activités locales</a></li>
-              <li><a href="#" className="hover:text-sky-400 transition-colors">Recommandations</a></li>
-              <li><a href="#" className="hover:text-sky-400 transition-colors">Badge SportZen</a></li>
-              <li><a href="#" className="hover:text-sky-400 transition-colors">Bien-être entreprise</a></li>
+              <li><a href="/activities" className="hover:text-sky-400 transition-colors">Activités </a></li>
+              <li><a href="/recommendations" className="hover:text-sky-400 transition-colors">Recommandations</a></li>
+              <li><a href="/Badges" className="hover:text-sky-400 transition-colors">Badge SportZen</a></li>
+              <li><a href="/corporate-offers" className="hover:text-sky-400 transition-colors">Bien-être sur mesure</a></li>
             </ul>
           </div>
 
@@ -65,23 +65,24 @@ const Footer: React.FC = () => {
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-white">
           <div className="flex justify-center space-x-4 mb-4">
-            <a href="/mentions-legales" className="hover:text-[#0a1128] transition-colors">
+            <a href="/legal" className="hover:text-[#0a1128] transition-colors">
               Mentions légales
             </a>
             <span>|</span>
-            <a href="/politique-de-confidentialite" className="hover:text-[#0a1128] transition-colors">
+            <a href="/privacy" className="hover:text-[#0a1128] transition-colors">
               Politique de confidentialité
             </a>
             <span>|</span>
-            <a href="/contact" className="hover:text-[#0a1128] transition-colors">
-              Contact
+            <a href="/sitemap" className="hover:text-[#0a1128] transition-colors">
+              SiteMap
             </a>
+
             <span>|</span>
             <a href="/faq" className="hover:text-[#0a1128] transition-colors">
               FAQ
             </a>
           </div>
-          <p>&copy; 2025 SportRadar by VitaMobilis. Tous droits réservés.</p>
+          <p>&copy; 2025 SportRadar by VitaMobilis. Tous droits réservés. Projet réalisé dans le cadre de l'école</p>
         </div>
       </div>
     </footer>

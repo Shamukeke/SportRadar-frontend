@@ -1,14 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ArrowRight, MapPin, Users, Shield, Zap, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Newsletter from '../components/Newsletter';
+
 const HomePage: React.FC = () => {
+  const navigate = useNavigate();
+
   const features = [
-    { icon: MapPin, title: 'Activités locales', description: 'Découvrez toutes les activités sportives près de chez vous' },
-    { icon: Zap, title: 'Recommandations intelligentes', description: 'Suggestions personnalisées selon vos préférences et la météo' },
-    { icon: Shield, title: 'Badge SportZen', description: 'Identifiez les lieux bienveillants et non-compétitifs' },
-    { icon: Users, title: 'Offres entreprises', description: 'Solutions bien-être sur mesure pour les professionnels' }
+    {
+      icon: MapPin,
+      title: 'Activités',
+      description: 'Découvrez toutes les activités sportives près de chez vous',
+      link: '/activities'
+    },
+    {
+      icon: Zap,
+      title: 'Recommandations intelligentes',
+      description: 'Suggestions personnalisées selon vos préférences',
+      link: '/recommendations'
+    },
+    {
+      icon: Shield,
+      title: 'Badge SportZen',
+      description: 'Identifiez les lieux bienveillants et non-compétitifs',
+      link: '/badges'
+    },
+    {
+      icon: Users,
+      title: 'Offres entreprises',
+      description: 'Solutions bien-être sur mesure pour les professionnels',
+      link: '/corporate-offers'
+    }
   ];
 
   const testimonials = [
@@ -97,36 +120,32 @@ const HomePage: React.FC = () => {
             </div>
           </div>
         </section>
-       
       </section>
-      
-  
+
       {/* Avantages Section */}
-      
-      <section className="bg-[#C7C5C5]  py-20 lg:-mt-44 ">   
+      <section className="bg-[#C7C5C5] py-20 lg:-mt-44">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
-            {features.map(({ title, description, icon: Icon }) => (
+            {features.map(({ title, description, icon: Icon, link }) => (
               <div
                 key={title}
-                className="flex flex-col items-center text-center space-y-4 p-6 bg-[#ABC2D7] backdrop-blur-md rounded-2xl shadow-md hover:shadow-xl transition-shadow"
+                onClick={() => navigate(link)}
+                className="cursor-pointer flex flex-col items-center text-center space-y-4 p-6 bg-[#ABC2D7] backdrop-blur-md rounded-2xl shadow-md hover:shadow-xl transition-shadow"
               >
                 <Icon className="w-10 h-10 text-[#dc5f18]" />
                 <h3 className="text-xl font-semibold text-[#0a1128]">{title}</h3>
-                <p className="text-[#0a1128]-200 text-sm">{description}</p>
+                <p className="text-sm text-[#0a1128]">{description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
-     
 
-      {/* Testimonials */}
-      <section className="py-20 bg-[#C7C5C5]  lg:-my-24">
+      {/* Testimonials Section */}
+      <section className="py-20 bg-[#C7C5C5] lg:-my-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-[#0a1128] ">Ce qu'ils disent de nous</h2>
+            <h2 className="text-3xl font-bold text-[#0a1128]">Ce qu'ils disent de nous</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {testimonials.map((testimonial, index) => (
@@ -145,12 +164,9 @@ const HomePage: React.FC = () => {
             ))}
           </div>
         </div>
-        <Newsletter/>
+        <Newsletter />
       </section>
-
-      
     </div>
-    
   );
 };
 

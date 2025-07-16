@@ -1,5 +1,9 @@
+// File: src/pages/ActivitiesPage.tsx
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
+import { useAuth } from '../contexts/AuthContext';
+import CountUp from 'react-countup';
 import {
   MapPin,
   Calendar as CalendarIcon,
@@ -13,12 +17,6 @@ import {
   XAxis,
   YAxis,
   Tooltip as RechartsTooltip,
-  Legend,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
   ResponsiveContainer
 } from 'recharts';
 
@@ -41,91 +39,114 @@ interface Activity {
   image?: string;
 }
 
-interface Stats {
-  total_activities: number;
-  average_participants: number;
-  monthly_activity: { month: string; count: number }[];
-  top_categories: { category: string; total: number }[];
-}
-
-const COLORS = ['#0a1128', '#ABC2D7', '#dc5f18', '#82ca9d', '#ffc658'];
+const ITEMS_PER_PAGE = 9;
 
 const ActivitiesPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [registered, setRegistered] = useState<Set<number>>(new Set());
-  const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // filtres avancés
+  // Filtres de recherche
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
 
-  const [showAll, setShowAll] = useState(false);
-  const ITEMS_PER_PAGE = 9;
-  const [currentPage, setCurrentPage] = useState(1);
+  // Niveau sélectionné pour le podium
+  const [selectedLevel, setSelectedLevel] = useState<string>('');
 
   useEffect(() => {
     (async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const [allRes, myRes, statsRes] = await Promise.all([
-          axiosInstance.get<Activity[]>('/activities/'),
-          axiosInstance.get<Activity[]>('/activities/my-activities/'),
-          axiosInstance.get<Stats>('/activities/stats/'),
-        ]);
+        const allRes = await axiosInstance.get<Activity[]>('/activities/');
         setActivities(allRes.data);
-        setRegistered(new Set(myRes.data.map(a => a.id)));
-        setStats(statsRes.data);
+        if (isAuthenticated) {
+          const myRes = await axiosInstance.get<Activity[]>('/activities/my-activities/');
+          setRegistered(new Set(myRes.data.map(a => a.id)));
+        }
+      } catch {
+        alert('Erreur lors du chargement des activités.');
       } finally {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [isAuthenticated]);
 
-  // tri chronologique
-  const sorted = useMemo(() => {
-    return [...activities].sort((a, b) => {
-      const da = new Date(`${a.date}T${a.time}`);
-      const db = new Date(`${b.date}T${b.time}`);
-      return da.getTime() - db.getTime();
-    });
-  }, [activities]);
-
-  // options pour dropdowns
-  const categories = useMemo(() => Array.from(new Set(activities.map(a => a.category))), [activities]);
-  const locations  = useMemo(() => Array.from(new Set(activities.map(a => a.location))), [activities]);
-
-  // filtrage
+  // Filtrage + tri chronologique
   const filtered = useMemo(() => {
-    return sorted.filter(a => {
-      if (searchTerm && !(
-        a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        a.description.toLowerCase().includes(searchTerm.toLowerCase())
-      )) return false;
-      if (categoryFilter && a.category !== categoryFilter) return false;
-      if (locationFilter && a.location !== locationFilter) return false;
-      if (dateFilter && a.date !== dateFilter) return false;
-      return true;
-    });
-  }, [sorted, searchTerm, categoryFilter, locationFilter, dateFilter]);
+    return activities
+      .filter(a => {
+        if (searchTerm &&
+          !(
+            a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            a.description.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        ) return false;
+        if (categoryFilter && a.category !== categoryFilter) return false;
+        if (locationFilter && a.location !== locationFilter) return false;
+        if (dateFilter && a.date !== dateFilter) return false;
+        return true;
+      })
+      .sort((a, b) => {
+        const da = new Date(`${a.date}T${a.time}`).getTime();
+        const db = new Date(`${b.date}T${b.time}`).getTime();
+        return da - db;
+      });
+  }, [activities, searchTerm, categoryFilter, locationFilter, dateFilter]);
 
+  // Pagination
   const displayed = showAll
     ? filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
     : filtered.slice(0, 3);
   const pageCount = Math.ceil(filtered.length / ITEMS_PER_PAGE);
 
-  // calcul dynamique des stats par lieu
-  const locationStats = useMemo(() => {
-    const m = new Map<string, number>();
+  // Calcul des niveaux et podium
+  const levels = useMemo(() => {
+    const unique = Array.from(new Set(activities.map(a => a.level)));
+    // initialiser selectedLevel à la première valeur
+    if (!selectedLevel && unique.length) setSelectedLevel(unique[0]);
+    return unique;
+  }, [activities, selectedLevel]);
+
+  const podiumData = useMemo(() => {
+    const byName: Record<string, number> = {};
+    activities
+      .filter(a => a.level === selectedLevel)
+      .forEach(a => {
+        byName[a.name] = (byName[a.name] || 0) + 1;
+      });
+    return Object.entries(byName)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3);
+  }, [activities, selectedLevel]);
+
+  // Statistique mensuelle
+  const monthlyActivity = useMemo(() => {
+    const map = new Map<string, number>();
     activities.forEach(a => {
-      m.set(a.location, (m.get(a.location) || 0) + 1);
+      const month = a.date.slice(0, 7);
+      map.set(month, (map.get(month) || 0) + 1);
     });
-    return Array.from(m.entries()).map(([location, total]) => ({ location, total }));
+    return Array.from(map.entries())
+      .map(([month, count]) => ({ month, count }))
+      .sort((a, b) => a.month.localeCompare(b.month));
   }, [activities]);
 
-  const toggleRegister = async (act: Activity) => {
+  // Total d’activités
+  const totalActivities = activities.length;
+
+  // Gestion inscription/désinscription
+  const handleRegisterClick = async (act: Activity) => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: '/activities' } });
+      return;
+    }
     try {
       const isReg = registered.has(act.id);
       const res = isReg
@@ -152,7 +173,7 @@ const ActivitiesPage: React.FC = () => {
 
         <h1 className="text-4xl font-bold text-[#0a1128] mb-6">Activités</h1>
 
-        {/* Barre de recherche avancée */}
+        {/* Filtres */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <input
             type="text"
@@ -167,7 +188,9 @@ const ActivitiesPage: React.FC = () => {
             className="p-2 rounded-lg border"
           >
             <option value="">Toutes catégories</option>
-            {categories.map(c => <option key={c} value={c}>{c}</option>)}
+            {[...new Set(activities.map(a => a.category))].map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
           </select>
           <select
             value={locationFilter}
@@ -175,7 +198,9 @@ const ActivitiesPage: React.FC = () => {
             className="p-2 rounded-lg border"
           >
             <option value="">Tous lieux</option>
-            {locations.map(l => <option key={l} value={l}>{l}</option>)}
+            {[...new Set(activities.map(a => a.location))].map(l => (
+              <option key={l} value={l}>{l}</option>
+            ))}
           </select>
           <input
             type="date"
@@ -185,7 +210,7 @@ const ActivitiesPage: React.FC = () => {
           />
         </div>
 
-        {/* Grille d’activités */}
+        {/* Grille */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           {displayed.map(act => {
             const isFull = act.participants >= act.max_participants;
@@ -205,31 +230,25 @@ const ActivitiesPage: React.FC = () => {
                         <Star className="w-4 h-4" /> <span>{act.rating.toFixed(1)}</span>
                       </div>
                     </div>
-                    <p className="text-gray-700 mb-2">{act.description}</p>
                     <ul className="text-sm text-gray-600 space-y-1 mb-4">
                       <li className="flex items-center gap-2"><MapPin className="w-4 h-4" /> {act.location}</li>
+                      <li className="flex items-center gap-2"><MapPin className="w-4 h-4" /> {act.level}</li>
                       <li className="flex items-center gap-2"><CalendarIcon className="w-4 h-4" /> {act.date}</li>
                       <li className="flex items-center gap-2"><Clock className="w-4 h-4" /> {act.time} • {act.duration}</li>
                       <li className="flex items-center gap-2">
-                        <Users className="w-4 h-4" /> {act.participants} / {act.max_participants}
-                        {isFull && <span className="ml-2 text-red-600 font-semibold">En attente</span>}
+                        <Users className="w-4 h-4" /> {act.participants}/{act.max_participants}
+                        {isFull && !isReg && <span className="ml-2 text-red-600 font-semibold">En attente</span>}
                       </li>
                       <li><strong>Prix :</strong> {act.price}</li>
-                      <li><strong>Niveau :</strong> {act.level}</li>
-                      {act.instructor && <li><strong>Coach :</strong> {act.instructor}</li>}
                     </ul>
                   </div>
                   <button
-                    onClick={() => toggleRegister(act)}
+                    onClick={() => handleRegisterClick(act)}
                     disabled={isFull && !isReg}
-                    className={`
-                      w-full py-2 rounded-lg font-semibold
-                      ${isReg
-                        ? 'bg-[#ABC2D7] text-[#0a1128] hover:bg-white'
-                        : isFull
-                          ? 'bg-gray-200 text-gray-600'
-                          : 'bg-[#dc5f18] text-white hover:bg-opacity-90'}
-                    `}
+                    className={`w-full py-2 rounded-lg font-semibold ${isReg ? 'bg-[#ABC2D7] text-[#0a1128]' :
+                      isFull ? 'bg-gray-200 text-gray-600' :
+                        'bg-[#dc5f18] text-white'
+                      }`}
                   >
                     {isReg ? 'Se désinscrire' : isFull ? 'Complet' : 'S’inscrire'}
                   </button>
@@ -239,13 +258,15 @@ const ActivitiesPage: React.FC = () => {
           })}
         </div>
 
-        {/* Voir toutes & Pagination */}
+        {/* Pagination */}
         {!showAll && filtered.length > 3 && (
           <div className="text-center mb-6">
             <button
               onClick={() => setShowAll(true)}
               className="px-6 py-2 bg-[#0a1128] text-white rounded-lg"
-            >Voir toutes les activités</button>
+            >
+              Voir la suite
+            </button>
           </div>
         )}
         {showAll && pageCount > 1 && (
@@ -254,83 +275,80 @@ const ActivitiesPage: React.FC = () => {
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
               className="px-4 py-2 bg-white border rounded disabled:opacity-50"
-            >Précédent</button>
-            <span className="text-[#0a1128] font-medium">Page {currentPage} / {pageCount}</span>
+            >
+              Précédent
+            </button>
+            <span className="text-[#0a1128] font-medium">
+              Page {currentPage} / {pageCount}
+            </span>
             <button
               onClick={() => setCurrentPage(p => Math.min(pageCount, p + 1))}
               disabled={currentPage === pageCount}
               className="px-4 py-2 bg-white border rounded disabled:opacity-50"
-            >Suivant</button>
+            >
+              Suivant
+            </button>
           </div>
         )}
 
-        {/* Statistiques dynamiques */}
-        {stats && (
-          <div className="bg-white p-6 rounded-2xl shadow-inner">
-            <h2 className="text-2xl font-bold text-[#dc5f18] mb-4">Statistiques</h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 text-center">
-              <div>
-                <p className="text-xl font-semibold">{stats.total_activities}</p>
-                <p>Total d’activités</p>
-              </div>
-              <div>
-                <p className="text-xl font-semibold">{stats.average_participants.toFixed(1)}</p>
-                <p>Moyenne participants</p>
-              </div>
-              <div>
-                <p className="text-xl font-semibold">
-                  {stats.top_categories.map(tc => `${tc.category} (${tc.total})`).join(' • ')}
-                </p>
-                <p>Top catégories</p>
-              </div>
+        {/* Statistiques allégées */}
+        <div className="bg-white p-6 rounded-2xl shadow-inner space-y-8">
+          {/* Total */}
+          <div className="text-center">
+            <div className="text-6xl font-extrabold text-[#0a1128]">
+              <CountUp end={totalActivities} duration={1.5} separator=" " />
             </div>
+            <div className="text-gray-600 uppercase tracking-wide">Total d’activités</div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Évolution mensuelle */}
-              <div>
-                <h3 className="text-lg font-medium mb-2">Évolution mensuelle</h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart data={stats.monthly_activity}>
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <RechartsTooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="count" stroke="#dc5f18" strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+          {/* Évolution mensuelle */}
+          <div>
+            <h3 className="text-xl font-semibold text-[#0a1128] mb-4 text-center">
+              Évolution mensuelle
+            </h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={monthlyActivity}>
+                <XAxis dataKey="month" />
+                <YAxis allowDecimals={false} />
+                <RechartsTooltip />
+                <Line type="monotone" dataKey="count" stroke="#dc5f18" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
 
-              {/* Répartition par catégorie */}
-              <div>
-                <h3 className="text-lg font-medium mb-2">Par catégorie</h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={stats.top_categories.map(tc => ({ category: tc.category, count: tc.total }))}>
-                    <XAxis dataKey="category" />
-                    <YAxis />
-                    <RechartsTooltip />
-                    <Legend />
-                    <Bar dataKey="count" fill="#0a1128" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+          {/* Podium dynamique par niveau */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-[#0a1128]">Podium par niveau</h3>
+              <select
+                className="border rounded px-3 py-1"
+                value={selectedLevel}
+                onChange={e => setSelectedLevel(e.target.value)}
+              >
+                {levels.map(lvl => (
+                  <option key={lvl} value={lvl}>{lvl}</option>
+                ))}
+              </select>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {podiumData.map((act, idx) => (
+                <div
+                  key={act.name}
+                  className={`p-4 rounded-xl shadow-md text-center ${idx === 0
+                    ? 'bg-[#dc5f18] text-white'
+                    : idx === 1
+                      ? 'bg-[#ABC2D7] text-[#0a1128]'
+                      : 'bg-[#C7C5C5] text-[#0a1128]'
+                    }`}
+                >
+                  <div className="text-5xl font-extrabold">{idx + 1}</div>
+                  <div className="text-xl font-semibold mt-2">{act.name}</div>
 
-              {/* Répartition par lieu */}
-              <div>
-                <h3 className="text-lg font-medium mb-2">Par lieu</h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={locationStats}>
-                    <XAxis dataKey="location" />
-                    <YAxis />
-                    <RechartsTooltip />
-                    <Legend />
-                    <Bar dataKey="total" fill="#ABC2D7" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+                </div>
+              ))}
             </div>
           </div>
-        )}
+        </div>
 
       </div>
     </div>

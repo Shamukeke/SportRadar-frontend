@@ -26,7 +26,7 @@ const Newsletter: React.FC = () => {
     <section className="py-16 bg-[#C7C5C5]  text-center">
       <div className="max-w-xl mx-auto px-4">
         <h2 className="text-3xl font-bold mb-4">
-           Newsletter SportRadar
+          Newsletter SportRadar
         </h2>
         <form
           onSubmit={handleSubmit}
@@ -49,7 +49,7 @@ const Newsletter: React.FC = () => {
         </form>
 
         {successMessage && (
-          <p className="mt-4 text-green-600 font-medium">{successMessage}</p>
+          <p className="mt-4 text-[#0a1128] font-medium">{successMessage}</p>
         )}
         {errorMessage && (
           <p className="mt-4 text-red-600 font-medium">{errorMessage}</p>
