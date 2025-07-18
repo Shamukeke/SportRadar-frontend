@@ -1,6 +1,6 @@
 // File: src/components/PlanForm.tsx
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
 import { toast } from 'react-toastify';
 
@@ -39,7 +39,7 @@ const PlanForm: React.FC<PlanFormProps> = ({ planKey }) => {
             });
             toast.success('Demande envoyée !');
             navigate('/');
-        } catch (error) {
+        } catch (error: any) {
             console.error("Erreur détaillée:", error.response?.data);  // Affiche l'erreur Django
             toast.error(error.response?.data?.detail || "Erreur lors de l'envoi");
         } finally {

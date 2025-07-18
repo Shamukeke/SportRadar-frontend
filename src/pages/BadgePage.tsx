@@ -1,6 +1,5 @@
 // src/pages/BadgePage.tsx
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Shield, MapPin, Star } from 'lucide-react';
 import axiosInstance from '../api/axiosInstance';
@@ -14,7 +13,6 @@ interface Place {
 }
 
 const BadgePage: React.FC = () => {
-    const navigate = useNavigate();
     const [places, setPlaces] = useState<Place[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');

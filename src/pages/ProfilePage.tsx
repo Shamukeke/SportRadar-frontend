@@ -1,4 +1,5 @@
-import React, { useEffect, useState, ChangeEvent } from 'react';
+import React, { useEffect, useState } from 'react';
+import type { ChangeEvent } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axiosInstance from '../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
@@ -80,7 +81,9 @@ const ProfilePage: React.FC = () => {
     setStatus('');
     setAvatarPreview(URL.createObjectURL(file));
     try {
-      await updateUser(form);
+      await axiosInstance.patch('/me/', form, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       setStatus('Avatar mis à jour ✔️');
     } catch (err: any) {
       console.error(err);
@@ -152,9 +155,8 @@ const ProfilePage: React.FC = () => {
                 key={key}
                 src={img}
                 alt={key}
-                className={`w-12 h-12 rounded-full cursor-pointer border-2 ${
-                  avatarPreview === img ? 'border-[#dc5f18]' : 'border-transparent'
-                }`}
+                className={`w-12 h-12 rounded-full cursor-pointer border-2 ${avatarPreview === img ? 'border-[#dc5f18]' : 'border-transparent'
+                  }`}
                 onClick={() => handleAvatarSelect(key)}
               />
             ))}

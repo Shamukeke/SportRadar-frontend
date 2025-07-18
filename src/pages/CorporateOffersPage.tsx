@@ -66,7 +66,8 @@ const CorporateOffersPage: React.FC = () => {
     const navigate = useNavigate();
 
     // états du formulaire
-    const [selectedPlan, setSelectedPlan] = useState<'basic' | 'intermediate' | 'enterprise'>('basic');
+    const [selectedPlan, setSelectedPlan] = useState<string>('basic');
+
     const [companyName, setCompanyName] = useState('');
     const [adminName, setAdminName] = useState('');
     const [email, setEmail] = useState('');

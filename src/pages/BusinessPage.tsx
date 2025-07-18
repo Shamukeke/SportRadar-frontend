@@ -1,5 +1,5 @@
-// File: src/pages/BusinessPage.tsx
-import React, { useState } from 'react';
+// src/pages/BusinessPage.tsx
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -8,7 +8,6 @@ import {
   Calendar as CalendarIcon,
   Shield,
   CheckCircle,
-  ArrowRight,
   Award
 } from 'lucide-react';
 import Newsletter from '../components/Newsletter';

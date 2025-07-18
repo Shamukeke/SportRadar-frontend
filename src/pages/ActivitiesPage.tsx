@@ -1,5 +1,5 @@
-// File: src/pages/ActivitiesPage.tsx
-import React, { useState, useEffect, useMemo } from 'react';
+// src/pages/ActivitiesPage.tsx
+import React, { useState, useEffect, useMemo, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
 import { useAuth } from '../contexts/AuthContext';
@@ -59,6 +59,27 @@ const ActivitiesPage: React.FC = () => {
   // Niveau sélectionné pour le podium
   const [selectedLevel, setSelectedLevel] = useState<string>('');
 
+  // handleChange générique pour tous les filtres
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    switch (name) {
+      case 'searchTerm':
+        setSearchTerm(value);
+        break;
+      case 'categoryFilter':
+        setCategoryFilter(value);
+        break;
+      case 'locationFilter':
+        setLocationFilter(value);
+        break;
+      case 'dateFilter':
+        setDateFilter(value);
+        break;
+      default:
+        break;
+    }
+  };
+
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -108,7 +129,6 @@ const ActivitiesPage: React.FC = () => {
   // Calcul des niveaux et podium
   const levels = useMemo(() => {
     const unique = Array.from(new Set(activities.map(a => a.level)));
-    // initialiser selectedLevel à la première valeur
     if (!selectedLevel && unique.length) setSelectedLevel(unique[0]);
     return unique;
   }, [activities, selectedLevel]);
@@ -170,21 +190,22 @@ const ActivitiesPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#C7C5C5] py-10 px-4">
       <div className="max-w-6xl mx-auto">
-
         <h1 className="text-4xl font-bold text-[#0a1128] mb-6">Activités</h1>
 
         {/* Filtres */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <input
+            name="searchTerm"
             type="text"
             placeholder="Recherche libre..."
             value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
+            onChange={handleChange}
             className="p-2 rounded-lg border"
           />
           <select
+            name="categoryFilter"
             value={categoryFilter}
-            onChange={e => setCategoryFilter(e.target.value)}
+            onChange={handleChange}
             className="p-2 rounded-lg border"
           >
             <option value="">Toutes catégories</option>
@@ -193,8 +214,9 @@ const ActivitiesPage: React.FC = () => {
             ))}
           </select>
           <select
+            name="locationFilter"
             value={locationFilter}
-            onChange={e => setLocationFilter(e.target.value)}
+            onChange={handleChange}
             className="p-2 rounded-lg border"
           >
             <option value="">Tous lieux</option>
@@ -203,13 +225,13 @@ const ActivitiesPage: React.FC = () => {
             ))}
           </select>
           <input
+            name="dateFilter"
             type="date"
             value={dateFilter}
-            onChange={e => setDateFilter(e.target.value)}
+            onChange={handleChange}
             className="p-2 rounded-lg border"
           />
         </div>
-
         {/* Grille */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           {displayed.map(act => {
@@ -257,7 +279,6 @@ const ActivitiesPage: React.FC = () => {
             );
           })}
         </div>
-
         {/* Pagination */}
         {!showAll && filtered.length > 3 && (
           <div className="text-center mb-6">
@@ -290,7 +311,6 @@ const ActivitiesPage: React.FC = () => {
             </button>
           </div>
         )}
-
         {/* Statistiques allégées */}
         <div className="bg-white p-6 rounded-2xl shadow-inner space-y-8">
           {/* Total */}
@@ -300,7 +320,6 @@ const ActivitiesPage: React.FC = () => {
             </div>
             <div className="text-gray-600 uppercase tracking-wide">Total d’activités</div>
           </div>
-
           {/* Évolution mensuelle */}
           <div>
             <h3 className="text-xl font-semibold text-[#0a1128] mb-4 text-center">
@@ -315,7 +334,6 @@ const ActivitiesPage: React.FC = () => {
               </LineChart>
             </ResponsiveContainer>
           </div>
-
           {/* Podium dynamique par niveau */}
           <div>
             <div className="flex items-center justify-between mb-4">
@@ -343,13 +361,11 @@ const ActivitiesPage: React.FC = () => {
                 >
                   <div className="text-5xl font-extrabold">{idx + 1}</div>
                   <div className="text-xl font-semibold mt-2">{act.name}</div>
-
                 </div>
               ))}
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );

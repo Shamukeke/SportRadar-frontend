@@ -12,7 +12,7 @@ const AdminActivitiesPage: React.FC = () => {
   const { user } = useAuth();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [edited, setEdited] = useState<{ [key: number]: string }>({});
-  const [loading, setLoading] = useState(false);
+
 
   const fetchActivities = async () => {
     const res = await axios.get('http://localhost:8000/api/activities/');

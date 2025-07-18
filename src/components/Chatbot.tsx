@@ -7,14 +7,18 @@ interface Message {
     text: string;
 }
 
-const Chatbot: React.FC = () => {
+interface ChatbotProps {
+    minimized?: boolean;
+}
+
+const Chatbot: React.FC<ChatbotProps> = ({ minimized = false }) => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [history, setHistory] = useState<{ role: string; content: string }[]>([]);
     const [disabled, setDisabled] = useState(false);
     const bottomRef = useRef<HTMLDivElement>(null);
 
-    // 1. Accueil
+    // Message de bienvenue
     useEffect(() => {
         const welcome: Message = {
             id: Date.now(),
@@ -24,7 +28,7 @@ const Chatbot: React.FC = () => {
         setMessages([welcome]);
     }, []);
 
-    // Scroll auto
+    // Scroll automatique vers le bas
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
@@ -49,19 +53,17 @@ const Chatbot: React.FC = () => {
             setMessages(prev => [...prev, botMsg]);
             setHistory(prev => [...prev, { role: 'assistant', content: reply }]);
         } catch {
-            // 2. Fallback enrichi
+            // Fallback enrichi
             const fallbackText = [
                 `😅 Oups, j'ai un petit souci technique.`,
-                `Voici quelques conseils en attendant :`,
-                `• Pour le sport : visez 3 séances de 30 min par semaine (cardio + renfo).`,
-                `• Pour la diététique : consommez 5 portions de fruits et légumes par jour.`,
-                `• Hydratez-vous : au moins 1,5 L d'eau par jour.`,
-                `• Sommeil : 7 à 8 h par nuit pour une meilleure récupération.`,
-                `Merci pour votre compréhension !`,
+                `• Sport : 3 séances de 30 min/semaine (cardio+renfo)`,
+                `• Diététique : 5 portions de fruits & légumes/jour`,
+                `• Hydratation : ≥1,5 L d'eau/jour`,
+                `• Sommeil : 7–8 h/nuit`,
+                `Merci pour votre compréhension !`
             ].join('\n');
             const botMsg: Message = { id: Date.now() + 2, sender: 'bot', text: fallbackText };
             setMessages(prev => [...prev, botMsg]);
-            // On désactive la saisie pour éviter les relances sans intérêt
             setDisabled(true);
         }
     };
@@ -73,6 +75,9 @@ const Chatbot: React.FC = () => {
         }
     };
 
+    // Si minimized = true, on ne rend rien
+    if (minimized) return null;
+
     return (
         <div className="bg-gray-100 p-4 rounded-lg mb-8 max-w-md mx-auto">
             <h3 className="text-lg font-semibold mb-2">Coach Sport & Nutrition</h3>
@@ -83,12 +88,10 @@ const Chatbot: React.FC = () => {
                         className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} mb-2`}
                     >
                         <div
-                            className={`
-                ${msg.sender === 'user'
-                                    ? 'bg-[#dc5f18] text-white self-end'
-                                    : 'bg-gray-200 text-gray-800 self-start'}
-                rounded-md px-3 py-1 max-w-xs whitespace-pre-line
-              `}
+                            className={`rounded-md px-3 py-1 max-w-xs whitespace-pre-line ${msg.sender === 'user'
+                                    ? 'bg-[#dc5f18] text-white'
+                                    : 'bg-gray-200 text-gray-800'
+                                }`}
                         >
                             {msg.text}
                         </div>
@@ -104,13 +107,15 @@ const Chatbot: React.FC = () => {
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={onKeyDown}
                     disabled={disabled}
-                    className={`flex-1 border rounded-l-lg px-3 py-2 focus:outline-none ${disabled ? 'bg-gray-200' : ''}`}
+                    className={`flex-1 border rounded-l-lg px-3 py-2 focus:outline-none ${disabled ? 'bg-gray-200' : ''
+                        }`}
                     placeholder={disabled ? 'Conversation terminée' : 'Posez votre question...'}
                 />
                 <button
                     onClick={handleSend}
                     disabled={disabled}
-                    className={`bg-[#0a1128] text-white px-4 rounded-r-lg hover:bg-[#081625] transition ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`bg-[#0a1128] text-white px-4 rounded-r-lg hover:bg-[#081625] transition ${disabled ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
                 >
                     Envoyer
                 </button>

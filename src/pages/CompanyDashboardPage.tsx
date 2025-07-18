@@ -10,6 +10,7 @@ interface Member {
     username: string;
     is_active: boolean;
 }
+
 interface CompanyStats {
     total_members: number;
     active_members: number;
@@ -23,12 +24,15 @@ const CompanyDashboardPage: React.FC = () => {
     const [stats, setStats] = useState<CompanyStats | null>(null);
 
     useEffect(() => {
-        if (!isAuthenticated || !user?.company) return;
+        if (!isAuthenticated || !user?.company?.id) return;
+
+        const companyId = user.company.id;
+
         const fetchData = async () => {
             try {
                 const [mRes, sRes] = await Promise.all([
-                    axiosInstance.get<Member[]>(`/companies/${user.company.id}/members/`),
-                    axiosInstance.get<CompanyStats>(`/companies/${user.company.id}/stats/`),
+                    axiosInstance.get<Member[]>(`/companies/${companyId}/members/`),
+                    axiosInstance.get<CompanyStats>(`/companies/${companyId}/stats/`),
                 ]);
                 setMembers(mRes.data);
                 setStats(sRes.data);
@@ -36,16 +40,23 @@ const CompanyDashboardPage: React.FC = () => {
                 toast.error('Erreur chargement dashboard entreprise');
             }
         };
+
         fetchData();
     }, [isAuthenticated, user]);
 
-    if (!user || user.type !== 'business') return null;
+    if (!user || user.type !== 'business') {
+        return null;
+    }
+
+    const companyId = user.company?.id;
+    if (!companyId) {
+        return <div>Aucune entreprise trouvée</div>;
+    }
 
     return (
         <div className="min-h-screen bg-[#C7C5C5] p-6">
             <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg p-8 space-y-6">
                 <h1 className="text-3xl font-bold">Dashboard Société : {user.company?.name}</h1>
-
                 {/* Stats */}
                 {stats && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -67,7 +78,6 @@ const CompanyDashboardPage: React.FC = () => {
                         </div>
                     </div>
                 )}
-
                 {/* Members list & Invite */}
                 <div className="space-y-4">
                     <h2 className="text-2xl font-semibold">Équipe</h2>
@@ -85,4 +95,5 @@ const CompanyDashboardPage: React.FC = () => {
         </div>
     );
 };
+
 export default CompanyDashboardPage;
