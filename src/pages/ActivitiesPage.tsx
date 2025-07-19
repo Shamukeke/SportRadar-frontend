@@ -39,6 +39,7 @@ interface Activity {
   image?: string;
 }
 
+const MEDIA_URL = import.meta.env.VITE_API_URL || 'https://ias-b3-1-lyon-g1.onrender.com';
 const ITEMS_PER_PAGE = 9;
 
 const ActivitiesPage: React.FC = () => {
@@ -240,9 +241,13 @@ const ActivitiesPage: React.FC = () => {
             return (
               <div key={act.id} className="bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
                 <img
-                  src={act.image || '/images/activity-default.jpg'}
+                  src={act.image ?? '/images/activity-default.jpg'}
                   alt={act.name}
                   className="w-full h-48 object-cover"
+                  onError={e => {
+                    // Au cas où même l'URL complète échoue, on bascule sur un fallback local 
+                    (e.currentTarget as HTMLImageElement).src = '/images/activity-default.jpg';
+                  }}
                 />
                 <div className="p-4 flex-1 flex flex-col justify-between">
                   <div>
