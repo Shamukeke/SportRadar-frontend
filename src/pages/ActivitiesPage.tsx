@@ -39,7 +39,7 @@ interface Activity {
   image?: string;
 }
 
-const MEDIA_URL = import.meta.env.VITE_API_URL || 'https://ias-b3-1-lyon-g1.onrender.com';
+
 const ITEMS_PER_PAGE = 9;
 
 const ActivitiesPage: React.FC = () => {
