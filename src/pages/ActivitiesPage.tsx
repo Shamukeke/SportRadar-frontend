@@ -83,11 +83,11 @@ const ActivitiesPage: React.FC = () => {
   };
 
   const extractFilename = (url?: string) => {
-    if (!url) return 'activity-default.jpg';
+    if (!url) return 'activity-default.jpeg';
     try {
-      return new URL(url).pathname.split('/').pop() || 'activity-default.jpg';
+      return new URL(url).pathname.split('/').pop() || 'activity-default.jpeg';
     } catch {
-      return 'activity-default.jpg';
+      return 'activity-default.jpeg';
     }
   };
 
@@ -257,7 +257,7 @@ const ActivitiesPage: React.FC = () => {
                   className="w-full h-48 object-cover"
                   onError={e => {
                     // Fallback si image manquante : public/activities/activity-default.jpg
-                    (e.currentTarget as HTMLImageElement).src = '/activities/activity-default.jpg';
+                    (e.currentTarget as HTMLImageElement).src = '/activities/activity-default.jpeg';
                   }}
                 />
                 <div className="p-4 flex-1 flex flex-col justify-between">
