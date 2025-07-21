@@ -1,9 +1,11 @@
-// src/pages/ActivitiesPage.tsx
-import React, { useState, useEffect, useMemo, type ChangeEvent } from 'react';
+// File: src/pages/ActivitiesPage.tsx
+import React, { useState, useEffect, useMemo } from 'react';
+import type { ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
 import { useAuth } from '../contexts/AuthContext';
 import CountUp from 'react-countup';
+import { images } from '../assets/activity_images';
 
 import {
   MapPin,
@@ -37,9 +39,8 @@ interface Activity {
   sport_zen: boolean;
   rating: number;
   instructor?: string;
-  image?: string;
+  image: string; // full URL from API
 }
-
 
 const ITEMS_PER_PAGE = 9;
 
@@ -52,51 +53,27 @@ const ActivitiesPage: React.FC = () => {
   const [showAll, setShowAll] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Filtres de recherche
+  // Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
-
-  // Niveau sélectionné pour le podium
   const [selectedLevel, setSelectedLevel] = useState<string>('');
 
-  // handleChange générique pour tous les filtres
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    switch (name) {
-      case 'searchTerm':
-        setSearchTerm(value);
-        break;
-      case 'categoryFilter':
-        setCategoryFilter(value);
-        break;
-      case 'locationFilter':
-        setLocationFilter(value);
-        break;
-      case 'dateFilter':
-        setDateFilter(value);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const extractFilename = (url?: string) => {
-    if (!url) return 'activity-default.jpg';
-    try {
-      return new URL(url).pathname.split('/').pop() || 'activity-default.jpg';
-    } catch {
-      return 'activity-default.jpg';
-    }
+    if (name === 'searchTerm') setSearchTerm(value);
+    if (name === 'categoryFilter') setCategoryFilter(value);
+    if (name === 'locationFilter') setLocationFilter(value);
+    if (name === 'dateFilter') setDateFilter(value);
   };
 
   useEffect(() => {
     (async () => {
       setLoading(true);
       try {
-        const allRes = await axiosInstance.get<Activity[]>('/activities/');
-        setActivities(allRes.data);
+        const { data } = await axiosInstance.get<Activity[]>('/activities/');
+        setActivities(data);
         if (isAuthenticated) {
           const myRes = await axiosInstance.get<Activity[]>('/activities/my-activities/');
           setRegistered(new Set(myRes.data.map(a => a.id)));
@@ -109,27 +86,22 @@ const ActivitiesPage: React.FC = () => {
     })();
   }, [isAuthenticated]);
 
-  // Filtrage + tri chronologique
-  const filtered = useMemo(() => {
-    return activities
+  // Filtering + sorting
+  const filtered = useMemo(
+    () => activities
       .filter(a => {
-        if (searchTerm &&
-          !(
-            a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            a.description.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-        ) return false;
+        if (searchTerm && !(
+          a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          a.description.toLowerCase().includes(searchTerm.toLowerCase())
+        )) return false;
         if (categoryFilter && a.category !== categoryFilter) return false;
         if (locationFilter && a.location !== locationFilter) return false;
         if (dateFilter && a.date !== dateFilter) return false;
         return true;
       })
-      .sort((a, b) => {
-        const da = new Date(`${a.date}T${a.time}`).getTime();
-        const db = new Date(`${b.date}T${b.time}`).getTime();
-        return da - db;
-      });
-  }, [activities, searchTerm, categoryFilter, locationFilter, dateFilter]);
+      .sort((a, b) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime()),
+    [activities, searchTerm, categoryFilter, locationFilter, dateFilter]
+  );
 
   // Pagination
   const displayed = showAll
@@ -137,7 +109,7 @@ const ActivitiesPage: React.FC = () => {
     : filtered.slice(0, 3);
   const pageCount = Math.ceil(filtered.length / ITEMS_PER_PAGE);
 
-  // Calcul des niveaux et podium
+  // Levels and podium
   const levels = useMemo(() => {
     const unique = Array.from(new Set(activities.map(a => a.level)));
     if (!selectedLevel && unique.length) setSelectedLevel(unique[0]);
@@ -146,18 +118,15 @@ const ActivitiesPage: React.FC = () => {
 
   const podiumData = useMemo(() => {
     const byName: Record<string, number> = {};
-    activities
-      .filter(a => a.level === selectedLevel)
-      .forEach(a => {
-        byName[a.name] = (byName[a.name] || 0) + 1;
-      });
+    activities.filter(a => a.level === selectedLevel)
+      .forEach(a => byName[a.name] = (byName[a.name] || 0) + 1);
     return Object.entries(byName)
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 3);
   }, [activities, selectedLevel]);
 
-  // Statistique mensuelle
+  // Monthly stats
   const monthlyActivity = useMemo(() => {
     const map = new Map<string, number>();
     activities.forEach(a => {
@@ -169,10 +138,8 @@ const ActivitiesPage: React.FC = () => {
       .sort((a, b) => a.month.localeCompare(b.month));
   }, [activities]);
 
-  // Total d’activités
   const totalActivities = activities.length;
 
-  // Gestion inscription/désinscription
   const handleRegisterClick = async (act: Activity) => {
     if (!isAuthenticated) {
       navigate('/login', { state: { from: '/activities' } });
@@ -183,9 +150,7 @@ const ActivitiesPage: React.FC = () => {
       const res = isReg
         ? await axiosInstance.delete<{ participants: number }>(`/activities/${act.id}/register/`)
         : await axiosInstance.post<{ participants: number }>(`/activities/${act.id}/register/`);
-      setActivities(prev =>
-        prev.map(a => a.id === act.id ? { ...a, participants: res.data.participants } : a)
-      );
+      setActivities(prev => prev.map(a => a.id === act.id ? { ...a, participants: res.data.participants } : a));
       setRegistered(prev => {
         const s = new Set(prev);
         isReg ? s.delete(act.id) : s.add(act.id);
@@ -203,7 +168,7 @@ const ActivitiesPage: React.FC = () => {
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold text-[#0a1128] mb-6">Activités</h1>
 
-        {/* Filtres */}
+        {/* Filters */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <input
             name="searchTerm"
@@ -243,22 +208,20 @@ const ActivitiesPage: React.FC = () => {
             className="p-2 rounded-lg border"
           />
         </div>
-        {/* Grille */}
+
+        {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           {displayed.map(act => {
-            const filename = extractFilename(act.image);
+            const key = act.image.split('/').pop()?.split('.')[0] || 'default';
+            const src = images[key] || images['default'];
             const isFull = act.participants >= act.max_participants;
             const isReg = registered.has(act.id);
             return (
               <div key={act.id} className="bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
                 <img
-                  src={`/activities/${filename}`}
+                  src={src}
                   alt={act.name}
                   className="w-full h-48 object-cover"
-                  onError={e => {
-                    // Fallback si image manquante : public/activities/activity-default.jpg
-                    (e.currentTarget as HTMLImageElement).src = '/activities/activity-default.jpg';
-                  }}
                 />
                 <div className="p-4 flex-1 flex flex-col justify-between">
                   <div>
