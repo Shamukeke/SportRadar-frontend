@@ -1,4 +1,4 @@
-// src/pages/ActivitiesPage.tsx
+// File: src/pages/ActivitiesPage.tsx
 import React, { useState, useEffect, useMemo, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
@@ -40,8 +40,19 @@ interface Activity {
   image?: string;
 }
 
-
 const ITEMS_PER_PAGE = 9;
+
+// Extrait le nom de fichier depuis l'URL, fallback activity-default.jpg
+const extractFilename = (url?: string) => {
+  const defaultFile = 'activity-default.jpg';
+  if (!url) return defaultFile;
+  try {
+    const parts = new URL(url).pathname.split('/');
+    return parts[parts.length - 1] || defaultFile;
+  } catch {
+    return defaultFile;
+  }
+};
 
 const ActivitiesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -52,43 +63,18 @@ const ActivitiesPage: React.FC = () => {
   const [showAll, setShowAll] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Filtres de recherche
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
-
-  // Niveau sélectionné pour le podium
   const [selectedLevel, setSelectedLevel] = useState<string>('');
 
-  // handleChange générique pour tous les filtres
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    switch (name) {
-      case 'searchTerm':
-        setSearchTerm(value);
-        break;
-      case 'categoryFilter':
-        setCategoryFilter(value);
-        break;
-      case 'locationFilter':
-        setLocationFilter(value);
-        break;
-      case 'dateFilter':
-        setDateFilter(value);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const extractFilename = (url?: string) => {
-    if (!url) return 'activity-default.jpeg';
-    try {
-      return new URL(url).pathname.split('/').pop() || 'activity-default.jpeg';
-    } catch {
-      return 'activity-default.jpeg';
-    }
+    if (name === 'searchTerm') setSearchTerm(value);
+    if (name === 'categoryFilter') setCategoryFilter(value);
+    if (name === 'locationFilter') setLocationFilter(value);
+    if (name === 'dateFilter') setDateFilter(value);
   };
 
   useEffect(() => {
@@ -109,35 +95,24 @@ const ActivitiesPage: React.FC = () => {
     })();
   }, [isAuthenticated]);
 
-  // Filtrage + tri chronologique
-  const filtered = useMemo(() => {
-    return activities
+  const filtered = useMemo(
+    () => activities
       .filter(a => {
-        if (searchTerm &&
-          !(
-            a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            a.description.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-        ) return false;
+        if (searchTerm && !(a.name.toLowerCase().includes(searchTerm.toLowerCase()) || a.description.toLowerCase().includes(searchTerm.toLowerCase()))) return false;
         if (categoryFilter && a.category !== categoryFilter) return false;
         if (locationFilter && a.location !== locationFilter) return false;
         if (dateFilter && a.date !== dateFilter) return false;
         return true;
       })
-      .sort((a, b) => {
-        const da = new Date(`${a.date}T${a.time}`).getTime();
-        const db = new Date(`${b.date}T${b.time}`).getTime();
-        return da - db;
-      });
-  }, [activities, searchTerm, categoryFilter, locationFilter, dateFilter]);
+      .sort((a, b) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime()),
+    [activities, searchTerm, categoryFilter, locationFilter, dateFilter]
+  );
 
-  // Pagination
   const displayed = showAll
     ? filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
     : filtered.slice(0, 3);
   const pageCount = Math.ceil(filtered.length / ITEMS_PER_PAGE);
 
-  // Calcul des niveaux et podium
   const levels = useMemo(() => {
     const unique = Array.from(new Set(activities.map(a => a.level)));
     if (!selectedLevel && unique.length) setSelectedLevel(unique[0]);
@@ -146,33 +121,21 @@ const ActivitiesPage: React.FC = () => {
 
   const podiumData = useMemo(() => {
     const byName: Record<string, number> = {};
-    activities
-      .filter(a => a.level === selectedLevel)
-      .forEach(a => {
-        byName[a.name] = (byName[a.name] || 0) + 1;
-      });
-    return Object.entries(byName)
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 3);
+    activities.filter(a => a.level === selectedLevel).forEach(a => byName[a.name] = (byName[a.name] || 0) + 1);
+    return Object.entries(byName).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 3);
   }, [activities, selectedLevel]);
 
-  // Statistique mensuelle
   const monthlyActivity = useMemo(() => {
     const map = new Map<string, number>();
     activities.forEach(a => {
       const month = a.date.slice(0, 7);
       map.set(month, (map.get(month) || 0) + 1);
     });
-    return Array.from(map.entries())
-      .map(([month, count]) => ({ month, count }))
-      .sort((a, b) => a.month.localeCompare(b.month));
+    return Array.from(map.entries()).map(([month, count]) => ({ month, count })).sort((a, b) => a.month.localeCompare(b.month));
   }, [activities]);
 
-  // Total d’activités
   const totalActivities = activities.length;
 
-  // Gestion inscription/désinscription
   const handleRegisterClick = async (act: Activity) => {
     if (!isAuthenticated) {
       navigate('/login', { state: { from: '/activities' } });
@@ -183,13 +146,9 @@ const ActivitiesPage: React.FC = () => {
       const res = isReg
         ? await axiosInstance.delete<{ participants: number }>(`/activities/${act.id}/register/`)
         : await axiosInstance.post<{ participants: number }>(`/activities/${act.id}/register/`);
-      setActivities(prev =>
-        prev.map(a => a.id === act.id ? { ...a, participants: res.data.participants } : a)
-      );
+      setActivities(prev => prev.map(a => a.id === act.id ? { ...a, participants: res.data.participants } : a));
       setRegistered(prev => {
-        const s = new Set(prev);
-        isReg ? s.delete(act.id) : s.add(act.id);
-        return s;
+        const s = new Set(prev); isReg ? s.delete(act.id) : s.add(act.id); return s;
       });
     } catch {
       alert('Erreur lors de la mise à jour de votre inscription.');
@@ -205,44 +164,18 @@ const ActivitiesPage: React.FC = () => {
 
         {/* Filtres */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <input
-            name="searchTerm"
-            type="text"
-            placeholder="Recherche libre..."
-            value={searchTerm}
-            onChange={handleChange}
-            className="p-2 rounded-lg border"
-          />
-          <select
-            name="categoryFilter"
-            value={categoryFilter}
-            onChange={handleChange}
-            className="p-2 rounded-lg border"
-          >
+          <input name="searchTerm" type="text" placeholder="Recherche libre..." value={searchTerm} onChange={handleChange} className="p-2 rounded-lg border" />
+          <select name="categoryFilter" value={categoryFilter} onChange={handleChange} className="p-2 rounded-lg border">
             <option value="">Toutes catégories</option>
-            {[...new Set(activities.map(a => a.category))].map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
+            {[...new Set(activities.map(a => a.category))].map(c => <option key={c} value={c}>{c}</option>)}
           </select>
-          <select
-            name="locationFilter"
-            value={locationFilter}
-            onChange={handleChange}
-            className="p-2 rounded-lg border"
-          >
+          <select name="locationFilter" value={locationFilter} onChange={handleChange} className="p-2 rounded-lg border">
             <option value="">Tous lieux</option>
-            {[...new Set(activities.map(a => a.location))].map(l => (
-              <option key={l} value={l}>{l}</option>
-            ))}
+            {[...new Set(activities.map(a => a.location))].map(l => <option key={l} value={l}>{l}</option>)}
           </select>
-          <input
-            name="dateFilter"
-            type="date"
-            value={dateFilter}
-            onChange={handleChange}
-            className="p-2 rounded-lg border"
-          />
+          <input name="dateFilter" type="date" value={dateFilter} onChange={handleChange} className="p-2 rounded-lg border" />
         </div>
+
         {/* Grille */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           {displayed.map(act => {
@@ -255,10 +188,7 @@ const ActivitiesPage: React.FC = () => {
                   src={`/activities/${filename}`}
                   alt={act.name}
                   className="w-full h-48 object-cover"
-                  onError={e => {
-                    // Fallback si image manquante : public/activities/activity-default.jpg
-                    (e.currentTarget as HTMLImageElement).src = '/activities/activity-default.jpeg';
-                  }}
+                  onError={e => { (e.currentTarget as HTMLImageElement).src = '/activities/activity-default.jpg'; }}
                 />
                 <div className="p-4 flex-1 flex flex-col justify-between">
                   <div>
