@@ -83,11 +83,11 @@ const ActivitiesPage: React.FC = () => {
   };
 
   const extractFilename = (url?: string) => {
-    if (!url) return 'activity-default.jpeg';
+    if (!url) return 'activity-default.jpg';
     try {
-      return new URL(url).pathname.split('/').pop() || 'activity-default.jpeg';
+      return new URL(url).pathname.split('/').pop() || 'activity-default.jpg';
     } catch {
-      return 'activity-default.jpeg';
+      return 'activity-default.jpg';
     }
   };
 
@@ -246,26 +246,18 @@ const ActivitiesPage: React.FC = () => {
         {/* Grille */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           {displayed.map(act => {
-            // 1. Extrait le nom de fichier depuis l’URL absolue
-            const extractFilename = (url?: string) => {
-              if (!url) return 'activity-default.jpg';
-              try {
-                return new URL(url).pathname.split('/').pop() || 'activity-default.jpg';
-              } catch {
-                return 'activity-default.jpeg';
-              }
-            };
+            const filename = extractFilename(act.image);
             const isFull = act.participants >= act.max_participants;
             const isReg = registered.has(act.id);
             return (
               <div key={act.id} className="bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
                 <img
-                  src={`/activities/${extractFilename(act.image)}`}
+                  src={`/activities/${filename}`}
                   alt={act.name}
                   className="w-full h-48 object-cover"
                   onError={e => {
-                    // 3. Même fallback placé sous public/activities/
-                    (e.currentTarget as HTMLImageElement).src = '/activities/activity-default.jpeg';
+                    // Fallback si image manquante : public/activities/activity-default.jpg
+                    (e.currentTarget as HTMLImageElement).src = '/activities/activity-default.jpg';
                   }}
                 />
                 <div className="p-4 flex-1 flex flex-col justify-between">
