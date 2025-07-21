@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
 import { useAuth } from '../contexts/AuthContext';
 import CountUp from 'react-countup';
+import fallbackImage from '../assets/activity-default.jpg';
 import {
   MapPin,
   Calendar as CalendarIcon,
@@ -241,12 +242,12 @@ const ActivitiesPage: React.FC = () => {
             return (
               <div key={act.id} className="bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
                 <img
-                  src={act.image ?? '/images/activity-default.jpg'}
+                  src={act.image ?? fallbackImage}
                   alt={act.name}
                   className="w-full h-48 object-cover"
                   onError={e => {
                     // Au cas où même l'URL complète échoue, on bascule sur un fallback local 
-                    (e.currentTarget as HTMLImageElement).src = '/images/activity-default.jpg';
+                    (e.currentTarget as HTMLImageElement).src = fallbackImage;
                   }}
                 />
                 <div className="p-4 flex-1 flex flex-col justify-between">
