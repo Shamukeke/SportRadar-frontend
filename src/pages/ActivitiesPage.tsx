@@ -42,18 +42,6 @@ interface Activity {
 
 const ITEMS_PER_PAGE = 9;
 
-// Extrait le nom de fichier depuis l'URL, fallback activity-default.jpg
-const extractFilename = (url?: string) => {
-  const defaultFile = 'activity-default.jpg';
-  if (!url) return defaultFile;
-  try {
-    const parts = new URL(url).pathname.split('/');
-    return parts[parts.length - 1] || defaultFile;
-  } catch {
-    return defaultFile;
-  }
-};
-
 const ActivitiesPage: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -63,6 +51,7 @@ const ActivitiesPage: React.FC = () => {
   const [showAll, setShowAll] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
@@ -98,7 +87,10 @@ const ActivitiesPage: React.FC = () => {
   const filtered = useMemo(
     () => activities
       .filter(a => {
-        if (searchTerm && !(a.name.toLowerCase().includes(searchTerm.toLowerCase()) || a.description.toLowerCase().includes(searchTerm.toLowerCase()))) return false;
+        if (searchTerm &&
+          !(a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            a.description.toLowerCase().includes(searchTerm.toLowerCase()))
+        ) return false;
         if (categoryFilter && a.category !== categoryFilter) return false;
         if (locationFilter && a.location !== locationFilter) return false;
         if (dateFilter && a.date !== dateFilter) return false;
@@ -121,8 +113,12 @@ const ActivitiesPage: React.FC = () => {
 
   const podiumData = useMemo(() => {
     const byName: Record<string, number> = {};
-    activities.filter(a => a.level === selectedLevel).forEach(a => byName[a.name] = (byName[a.name] || 0) + 1);
-    return Object.entries(byName).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 3);
+    activities.filter(a => a.level === selectedLevel)
+      .forEach(a => { byName[a.name] = (byName[a.name] || 0) + 1; });
+    return Object.entries(byName)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3);
   }, [activities, selectedLevel]);
 
   const monthlyActivity = useMemo(() => {
@@ -131,7 +127,9 @@ const ActivitiesPage: React.FC = () => {
       const month = a.date.slice(0, 7);
       map.set(month, (map.get(month) || 0) + 1);
     });
-    return Array.from(map.entries()).map(([month, count]) => ({ month, count })).sort((a, b) => a.month.localeCompare(b.month));
+    return Array.from(map.entries())
+      .map(([month, count]) => ({ month, count }))
+      .sort((a, b) => a.month.localeCompare(b.month));
   }, [activities]);
 
   const totalActivities = activities.length;
@@ -148,7 +146,9 @@ const ActivitiesPage: React.FC = () => {
         : await axiosInstance.post<{ participants: number }>(`/activities/${act.id}/register/`);
       setActivities(prev => prev.map(a => a.id === act.id ? { ...a, participants: res.data.participants } : a));
       setRegistered(prev => {
-        const s = new Set(prev); isReg ? s.delete(act.id) : s.add(act.id); return s;
+        const s = new Set(prev);
+        isReg ? s.delete(act.id) : s.add(act.id);
+        return s;
       });
     } catch {
       alert('Erreur lors de la mise à jour de votre inscription.');
@@ -164,32 +164,56 @@ const ActivitiesPage: React.FC = () => {
 
         {/* Filtres */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <input name="searchTerm" type="text" placeholder="Recherche libre..." value={searchTerm} onChange={handleChange} className="p-2 rounded-lg border" />
-          <select name="categoryFilter" value={categoryFilter} onChange={handleChange} className="p-2 rounded-lg border">
+          <input
+            type="text"
+            placeholder="Recherche libre..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="p-2 rounded-lg border"
+          />
+          <select
+            value={categoryFilter}
+            onChange={e => setCategoryFilter(e.target.value)}
+            className="p-2 rounded-lg border"
+          >
             <option value="">Toutes catégories</option>
-            {[...new Set(activities.map(a => a.category))].map(c => <option key={c} value={c}>{c}</option>)}
+            {[...new Set(activities.map(a => a.category))].map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
           </select>
-          <select name="locationFilter" value={locationFilter} onChange={handleChange} className="p-2 rounded-lg border">
+          <select
+            value={locationFilter}
+            onChange={e => setLocationFilter(e.target.value)}
+            className="p-2 rounded-lg border"
+          >
             <option value="">Tous lieux</option>
-            {[...new Set(activities.map(a => a.location))].map(l => <option key={l} value={l}>{l}</option>)}
+            {[...new Set(activities.map(a => a.location))].map(l => (
+              <option key={l} value={l}>{l}</option>
+            ))}
           </select>
-          <input name="dateFilter" type="date" value={dateFilter} onChange={handleChange} className="p-2 rounded-lg border" />
+          <input
+            type="date"
+            value={dateFilter}
+            onChange={e => setDateFilter(e.target.value)}
+            className="p-2 rounded-lg border"
+          />
         </div>
 
         {/* Grille */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           {displayed.map(act => {
-            const filename = extractFilename(act.image);
             const isFull = act.participants >= act.max_participants;
             const isReg = registered.has(act.id);
             return (
               <div key={act.id} className="bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
-                <img
-                  src={`/activities/${filename}`}
-                  alt={act.name}
-                  className="w-full h-48 object-cover"
-                  onError={e => { (e.currentTarget as HTMLImageElement).src = '/activities/activity-default.jpg'; }}
-                />
+                {/* Affichage uniquement si l’URL image existe */}
+                {act.image && (
+                  <img
+                    src={act.image}
+                    alt={act.name}
+                    className="w-full h-48 object-cover"
+                  />
+                )}
                 <div className="p-4 flex-1 flex flex-col justify-between">
                   <div>
                     <div className="flex justify-between items-center mb-2">
