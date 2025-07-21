@@ -82,6 +82,15 @@ const ActivitiesPage: React.FC = () => {
     }
   };
 
+  const extractFilename = (url?: string) => {
+    if (!url) return 'activity-default.jpg';
+    try {
+      return new URL(url).pathname.split('/').pop() || 'activity-default.jpg';
+    } catch {
+      return 'activity-default.jpg';
+    }
+  };
+
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -237,17 +246,18 @@ const ActivitiesPage: React.FC = () => {
         {/* Grille */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           {displayed.map(act => {
+            const filename = extractFilename(act.image);
             const isFull = act.participants >= act.max_participants;
             const isReg = registered.has(act.id);
             return (
               <div key={act.id} className="bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
                 <img
-                  src={act.image ?? '/images/activities/activity-default.jpg'}
+                  src={`/activities/${filename}`}
                   alt={act.name}
                   className="w-full h-48 object-cover"
                   onError={e => {
-                    // Au cas où même l'URL complète échoue, on bascule sur un fallback local 
-                    (e.currentTarget as HTMLImageElement).src = '/images/activities/activity-default.jpg';
+                    // Fallback si image manquante : public/activities/activity-default.jpg
+                    (e.currentTarget as HTMLImageElement).src = '/activities/activity-default.jpg';
                   }}
                 />
                 <div className="p-4 flex-1 flex flex-col justify-between">
