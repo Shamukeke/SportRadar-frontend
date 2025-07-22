@@ -1,8 +1,10 @@
 // File: src/pages/ActivitiesPage.tsx
 import React, { useState, useEffect, useMemo } from 'react';
 import type { ChangeEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
 import { useAuth } from '../contexts/AuthContext';
+import CountUp from 'react-countup';
 import { images } from '../assets/activity_images';
 
 import {
@@ -51,7 +53,6 @@ const ActivitiesPage: React.FC = () => {
   const [showAll, setShowAll] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Filters
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
@@ -77,14 +78,14 @@ const ActivitiesPage: React.FC = () => {
           setRegistered(new Set(myRes.data.map(a => a.id)));
         }
       } catch {
-        alert('Erreur chargement activités.');
+        alert('Erreur lors du chargement des activités.');
       } finally {
         setLoading(false);
       }
     })();
   }, [isAuthenticated]);
 
-  // Filtering
+  // Filter + sort
   const filtered = useMemo(
     () => activities
       .filter(a => {
@@ -98,11 +99,14 @@ const ActivitiesPage: React.FC = () => {
     [activities, searchTerm, categoryFilter, locationFilter, dateFilter]
   );
 
-  // Pagination
   const pageCount = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const displayed = showAll
-    ? filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
-    : filtered.slice(0, 3);
+
+  // Determine slice
+  const displayed = useMemo(() => {
+    if (!showAll) return filtered.slice(0, 3);
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filtered.slice(start, start + ITEMS_PER_PAGE);
+  }, [filtered, showAll, currentPage]);
 
   if (loading) return <div className="p-6 text-center">Chargement…</div>;
 
@@ -128,30 +132,26 @@ const ActivitiesPage: React.FC = () => {
         {/* Activities Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           {displayed.map(act => {
-            // Extraire la clé d'image en toute sécurité
-            const segments = act.image?.split('/') || [];
-            const lastSegment = segments.length > 0 ? segments[segments.length - 1] : '';
-            const filenameKey = lastSegment.split('.')[0] || 'default';
-            const src = images[filenameKey] || images['default'];
-            const isFull = act.participants >= act.max_participants;
-            const isReg = registered.has(act.id);
+            // Compute image key
+            const segments = act.image.split('/');
+            const last = segments.pop() || '';
+            const key = last.split('.')[0] || 'default';
+            const src = images[key] || images['default'];
             return (
               <div key={act.id} className="bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
                 <img src={src} alt={act.name} className="w-full h-48 object-cover" />
-                <div className="p-4 flex-1 flex flex-col justify-between">{/* ... */}</div>
+                <div className="p-4 flex-1 flex flex-col justify-between">{/* ...content... */}</div>
               </div>
             );
           })}
         </div>
 
-        {/* Show More Button */}
+        {/* Show more / pagination */}
         {!showAll && filtered.length > 3 && (
           <div className="text-center mb-6">
-            <button onClick={() => setShowAll(true)} className="px-6 py-2 bg-[#0a1128] text-white rounded-lg">Voir la suite</button>
+            <button onClick={() => { setShowAll(true); setCurrentPage(1); }} className="px-6 py-2 bg-[#0a1128] text-white rounded-lg">Voir la suite</button>
           </div>
         )}
-
-        {/* Pagination Controls */}
         {showAll && pageCount > 1 && (
           <div className="flex justify-center items-center gap-4 mb-6">
             <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-4 py-2 bg-white border rounded disabled:opacity-50">Précédent</button>
@@ -165,7 +165,7 @@ const ActivitiesPage: React.FC = () => {
           {/* Total */}
           <div className="text-center">
             <div className="text-6xl font-extrabold text-[#0a1128]">
-              <CountUp end={activities.length} duration={1.5} separator=" " />
+              <CountUp end={totalActivities} duration={1.5} separator=" " />
             </div>
             <div className="text-gray-600 uppercase tracking-wide">Total d’activités</div>
           </div>
