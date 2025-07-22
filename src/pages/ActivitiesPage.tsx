@@ -1,8 +1,7 @@
 // File: src/pages/ActivitiesPage.tsx
-import React, { useState, useEffect, useMemo, ChangeEvent } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axiosInstance from '../api/axiosInstance';
 import CountUp from 'react-countup';
-import { images } from '../assets/activity_images';
 import { MapPin, Calendar as CalendarIcon, Clock, Users, Star } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
@@ -140,10 +139,6 @@ const ActivitiesPage: React.FC = () => {
         {/* Activities Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           {displayed.map(act => {
-            const segments = act.image.split('/');
-            const last = segments.pop() || '';
-            const key = last.split('.')[0] || 'default';
-            const src = images[key] || images['default'];
             return (
               <div key={act.id} className="bg-white rounded-2xl shadow-lg overflow-hidden">
                 {act.image && (
