@@ -106,6 +106,33 @@ const ActivitiesPage: React.FC = () => {
     ? filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
     : filtered.slice(0, 3);
 
+  const monthlyActivity = useMemo(() => {
+    // Group activities by month (format: YYYY-MM)
+    const counts: { [month: string]: number } = {};
+    activities.forEach(a => {
+      const month = a.date.slice(0, 7); // "YYYY-MM"
+      counts[month] = (counts[month] || 0) + 1;
+    });
+    // Convert to array for recharts
+    return Object.entries(counts)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, count]) => ({ month, count }));
+  }, [activities]);
+
+  // Define available levels from activities
+  const levels = useMemo(
+    () => Array.from(new Set(activities.map(a => a.level))).filter(Boolean),
+    [activities]
+  );
+
+  // Compute podium data for the selected level
+  const podiumData = useMemo(() => {
+    return activities
+      .filter(a => !selectedLevel || a.level === selectedLevel)
+      .sort((a, b) => b.rating - a.rating)
+      .slice(0, 3);
+  }, [activities, selectedLevel]);
+
   if (loading) return <div className="p-6 text-center">Chargement…</div>;
 
   return (
@@ -130,8 +157,11 @@ const ActivitiesPage: React.FC = () => {
         {/* Activities Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
           {displayed.map(act => {
-            const key = act.image.split('/').pop()?.split('.')[0] || 'default';
-            const src = images[key] || images['default'];
+            // Extraire la clé d'image en toute sécurité
+            const segments = act.image?.split('/') || [];
+            const lastSegment = segments.length > 0 ? segments[segments.length - 1] : '';
+            const filenameKey = lastSegment.split('.')[0] || 'default';
+            const src = images[filenameKey] || images['default'];
             const isFull = act.participants >= act.max_participants;
             const isReg = registered.has(act.id);
             return (
@@ -159,12 +189,13 @@ const ActivitiesPage: React.FC = () => {
           </div>
         )}
 
+
         {/* Statistiques allégées */}
         <div className="bg-white p-6 rounded-2xl shadow-inner space-y-8">
           {/* Total */}
           <div className="text-center">
             <div className="text-6xl font-extrabold text-[#0a1128]">
-              <CountUp end={totalActivities} duration={1.5} separator=" " />
+              <CountUp end={activities.length} duration={1.5} separator=" " />
             </div>
             <div className="text-gray-600 uppercase tracking-wide">Total d’activités</div>
           </div>
