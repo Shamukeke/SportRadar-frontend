@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axiosInstance from '../api/axiosInstance';
 import CountUp from 'react-countup';
-import { MapPin, Calendar as CalendarIcon, Clock, Users, Star } from 'lucide-react';
+import { MapPin, Calendar as CalendarIcon, Clock, Users } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
 interface Activity {
