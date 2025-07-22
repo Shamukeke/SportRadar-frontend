@@ -1,10 +1,8 @@
 // File: src/pages/ActivitiesPage.tsx
 import React, { useState, useEffect, useMemo } from 'react';
 import type { ChangeEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
 import { useAuth } from '../contexts/AuthContext';
-import CountUp from 'react-countup';
 import { images } from '../assets/activity_images';
 
 import {
@@ -106,33 +104,6 @@ const ActivitiesPage: React.FC = () => {
     ? filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
     : filtered.slice(0, 3);
 
-  const monthlyActivity = useMemo(() => {
-    // Group activities by month (format: YYYY-MM)
-    const counts: { [month: string]: number } = {};
-    activities.forEach(a => {
-      const month = a.date.slice(0, 7); // "YYYY-MM"
-      counts[month] = (counts[month] || 0) + 1;
-    });
-    // Convert to array for recharts
-    return Object.entries(counts)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([month, count]) => ({ month, count }));
-  }, [activities]);
-
-  // Define available levels from activities
-  const levels = useMemo(
-    () => Array.from(new Set(activities.map(a => a.level))).filter(Boolean),
-    [activities]
-  );
-
-  // Compute podium data for the selected level
-  const podiumData = useMemo(() => {
-    return activities
-      .filter(a => !selectedLevel || a.level === selectedLevel)
-      .sort((a, b) => b.rating - a.rating)
-      .slice(0, 3);
-  }, [activities, selectedLevel]);
-
   if (loading) return <div className="p-6 text-center">Chargement…</div>;
 
   return (
@@ -188,7 +159,6 @@ const ActivitiesPage: React.FC = () => {
             <button onClick={() => setCurrentPage(p => Math.min(pageCount, p + 1))} disabled={currentPage === pageCount} className="px-4 py-2 bg-white border rounded disabled:opacity-50">Suivant</button>
           </div>
         )}
-
 
         {/* Statistiques allégées */}
         <div className="bg-white p-6 rounded-2xl shadow-inner space-y-8">
