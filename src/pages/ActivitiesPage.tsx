@@ -43,6 +43,7 @@ const ActivitiesPage: React.FC = () => {
       setLoading(true);
       try {
         const response = await axiosInstance.get<Activity[]>('/activities/');
+        console.log(response.data);
         setActivities(response.data);
       } catch {
         alert('Erreur lors du chargement des activités.');
