@@ -50,6 +50,9 @@ const ActivitiesPage: React.FC = () => {
   const [showAll, setShowAll] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
+  const getImageUrl = (img?: string) =>
+    img ? `${import.meta.env.VITE_MEDIA_URL}${img}` : '/images/activity-default.jpg';
+
   // Filtres de recherche
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -218,7 +221,7 @@ const ActivitiesPage: React.FC = () => {
             return (
               <div key={act.id} className="bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
                 <img
-                  src={act.image || '/images/activity-default.jpg'}
+                  src={getImageUrl(act.image)}
                   alt={act.name}
                   className="w-full h-48 object-cover"
                 />
