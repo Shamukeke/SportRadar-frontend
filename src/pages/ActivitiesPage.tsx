@@ -50,8 +50,15 @@ const ActivitiesPage: React.FC = () => {
   const [showAll, setShowAll] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const getImageUrl = (img?: string) =>
-    img ? `${import.meta.env.VITE_MEDIA_URL}${img}` : '/images/activity-default.jpg';
+  const getImageUrl = (img?: string) => {
+    if (!img) return '/images/activity-default.jpg';
+    // si c'est déjà une URL (commence par http ou https), on la retourne telle quelle
+    if (img.startsWith('http://') || img.startsWith('https://')) {
+      return img;
+    }
+    // sinon, on préfixe avec ta variable d'env VITE_MEDIA_URL
+    return `${import.meta.env.VITE_MEDIA_URL}${img}`;
+  };
 
   // Filtres de recherche
   const [searchTerm, setSearchTerm] = useState('');
@@ -221,7 +228,7 @@ const ActivitiesPage: React.FC = () => {
             return (
               <div key={act.id} className="bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
                 <img
-                  src={getImageUrl(act.image)}
+                  src={act.image || '/images/activity-default.jpg'}
                   alt={act.name}
                   className="w-full h-48 object-cover"
                 />
