@@ -52,11 +52,9 @@ const ActivitiesPage: React.FC = () => {
 
   const getImageUrl = (img?: string) => {
     if (!img) return '/images/activity-default.jpg';
-    // si c'est déjà une URL (commence par http ou https), on la retourne telle quelle
-    if (img.startsWith('http://') || img.startsWith('https://')) {
-      return img;
-    }
-    // sinon, on préfixe avec ta variable d'env VITE_MEDIA_URL
+    // Si c'est déjà une URL (http), renvoie-la directement
+    if (/^https?:\/\//i.test(img)) return img;
+    // Sinon, concatène via la variable d'env (VITE_MEDIA_URL ou REACT_APP_MEDIA_URL, selon ton build tool)
     return `${import.meta.env.VITE_MEDIA_URL}${img}`;
   };
 
@@ -116,12 +114,12 @@ const ActivitiesPage: React.FC = () => {
   const pageCount = Math.ceil(filtered.length / ITEMS_PER_PAGE);
 
   // Calcul des niveaux et podium
-  const levels = useMemo(() => {
-    const unique = Array.from(new Set(activities.map(a => a.level)));
-    // initialiser selectedLevel à la première valeur
-    if (!selectedLevel && unique.length) setSelectedLevel(unique[0]);
-    return unique;
-  }, [activities, selectedLevel]);
+  const levels = useMemo(() => Array.from(new Set(activities.map(a => a.level))), [activities]);
+  useEffect(() => {
+    if (!selectedLevel && levels.length) {
+      setSelectedLevel(levels[0]);
+    }
+  }, [levels, selectedLevel]);
 
   const podiumData = useMemo(() => {
     const byName: Record<string, number> = {};
@@ -228,7 +226,7 @@ const ActivitiesPage: React.FC = () => {
             return (
               <div key={act.id} className="bg-white rounded-2xl shadow-lg flex flex-col overflow-hidden">
                 <img
-                  src={act.image || '/images/activity-default.jpg'}
+                  src={getImageUrl(act.image)}
                   alt={act.name}
                   className="w-full h-48 object-cover"
                 />
