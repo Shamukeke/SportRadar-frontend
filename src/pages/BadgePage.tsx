@@ -122,10 +122,14 @@ const BadgePage: React.FC = () => {
                     </p>
                     {/* onClick={() => navigate('/corporate-offers')} */}
                     <button
-
-                        className="bg-[#dc5f18] text-white px-8 py-4 rounded-xl text-lg font-semibold hover:brightness-110 transition"
+                        disabled
+                        className="bg-[#dc5f18]/50 text-white px-8 py-4 rounded-xl text-lg font-semibold cursor-not-allowed transition relative group"
+                        title="Cette fonctionnalité sera bientôt disponible"
                     >
-                        Obtenir mon badge SportZen
+                        Badge SportZen en construction
+                        <span className="absolute hidden group-hover:block bg-gray-700 text-white text-sm rounded px-2 py-1 -bottom-10 left-1/2 transform -translate-x-1/2 w-max">
+                            Cette fonctionnalité sera bientôt disponible
+                        </span>
                     </button>
                 </section>
             </div>
