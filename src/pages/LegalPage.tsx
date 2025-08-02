@@ -77,7 +77,18 @@ const LegalPage: React.FC = () => {
                 <section>
                     <h2 className="text-2xl font-semibold text-[#0a1128] mb-2">Dernière mise à jour</h2>
                     <p className="text-gray-700">
-                        16 juillet 2025
+                        16 juillet 2025.
+                        ’il s’agit d’un projet étudiant fictif pour lequel aucun réel
+                        achat ou aucune réservation ne pourrait être effectué.
+                    </p>
+                </section>
+
+                {/* Date de mise à jour*/}
+                <section>
+                    <h2 className="text-2xl font-semibold text-[#0a1128] mb-2">Projet étudiant</h2>
+                    <p className="text-gray-700">
+
+                        Il s’agit d’un projet étudiant fictif pour lequel aucun réel service ne pourrait être effectué.
                     </p>
                 </section>
 

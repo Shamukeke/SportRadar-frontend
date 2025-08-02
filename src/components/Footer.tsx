@@ -82,7 +82,7 @@ const Footer: React.FC = () => {
               FAQ
             </a>
           </div>
-          <p>&copy; 2025 SportRadar by VitaMobilis. Tous droits réservés. Projet réalisé dans le cadre de l'école</p>
+          <p>&copy; 2025 SportRadar by VitaMobilis. Tous droits réservés. Projet ficitif dans le cadre de l'école</p>
         </div>
       </div>
     </footer>
