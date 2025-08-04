@@ -2,20 +2,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Home, Activity, Users, MapPin, FileText } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
-import { Home, Activity, Users, MapPin, FileText, Award, Briefcase, User, HelpCircle } from 'lucide-react';
 
 const routes = [
     { path: '/', label: 'Accueil', icon: <Home className="inline w-5 h-5 mr-2" /> },
     { path: '/activities', label: 'Activités', icon: <Activity className="inline w-5 h-5 mr-2" /> },
     { path: '/recommendations', label: 'Recommandations intelligentes', icon: <MapPin className="inline w-5 h-5 mr-2" /> },
-    { path: '/badges', label: 'Badge SportZen', icon: <Award className="inline w-5 h-5 mr-2" /> },
-    { path: '/corporate-offers', label: 'Offres entreprises', icon: <Briefcase className="inline w-5 h-5 mr-2" /> },
+    { path: '/badges', label: 'Badge SportZen', icon: <Users className="inline w-5 h-5 mr-2" /> },
+    { path: '/corporate-offers', label: 'Offres entreprises', icon: <Users className="inline w-5 h-5 mr-2" /> },
     { path: '/dashboard', label: 'Dashboard', icon: <FileText className="inline w-5 h-5 mr-2" /> },
-    { path: '/profile', label: 'Profil', icon: <User className="inline w-5 h-5 mr-2" /> },
+    { path: '/profile', label: 'Profil', icon: <FileText className="inline w-5 h-5 mr-2" /> },
+
     { path: '/legal', label: 'Mentions légales', icon: <FileText className="inline w-5 h-5 mr-2" /> },
     { path: '/privacy', label: 'Politique de confidentialité', icon: <FileText className="inline w-5 h-5 mr-2" /> },
-    { path: '/faq', label: 'FAQ', icon: <HelpCircle className="inline w-5 h-5 mr-2" /> },
+    { path: '/faq', label: 'FAQ', icon: <FileText className="inline w-5 h-5 mr-2" /> },
     { path: '/sitemap', label: 'Plan du site', icon: <FileText className="inline w-5 h-5 mr-2" /> },
 ];
 
