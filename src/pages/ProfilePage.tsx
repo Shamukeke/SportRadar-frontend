@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import axiosInstance from '../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 import avatarOptions from '../assets/avatars';
+import { Helmet } from 'react-helmet-async';
 
 const locationOptions = [
   'Paris',
@@ -131,107 +132,115 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#C7C5C5] py-12">
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-8">
-        <div className="flex flex-col items-center mb-8">
-          <img
-            src={avatarPreview}
-            alt="Avatar"
-            className="w-32 h-32 rounded-full border-4 border-white object-cover shadow-md"
-          />
-          <label className="mt-3 inline-block bg-[#0a1128] text-white px-4 py-2 rounded cursor-pointer">
-            {uploading ? 'Upload...' : 'Changer l’avatar'}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarUpload}
-              className="hidden"
-              disabled={uploading || saving}
+    <>
+      <Helmet>
+        <title>Profil - SportRadar</title>
+        <meta name="description" content="Gérez vos informations personnelles et vos préférences SportRadar." />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+
+      <div className="min-h-screen bg-[#C7C5C5] py-12">
+        <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+          <div className="flex flex-col items-center mb-8">
+            <img
+              src={avatarPreview}
+              alt="Avatar"
+              className="w-32 h-32 rounded-full border-4 border-white object-cover shadow-md"
             />
-          </label>
-          <div className="mt-4 grid grid-cols-5 gap-2">
-            {Object.entries(avatarOptions).map(([key, img]) => (
-              <img
-                key={key}
-                src={img}
-                alt={key}
-                className={`w-12 h-12 rounded-full cursor-pointer border-2 ${avatarPreview === img ? 'border-[#dc5f18]' : 'border-transparent'
-                  }`}
-                onClick={() => handleAvatarSelect(key)}
+            <label className="mt-3 inline-block bg-[#0a1128] text-white px-4 py-2 rounded cursor-pointer">
+              {uploading ? 'Upload...' : 'Changer l’avatar'}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                className="hidden"
+                disabled={uploading || saving}
               />
-            ))}
-          </div>
-        </div>
-
-        <h1 className="text-3xl font-bold mb-4 text-[#0a1128]">Mon profil</h1>
-        <p><strong>Nom :</strong> {user.username}</p>
-        <p><strong>Email :</strong> {user.email}</p>
-        <p><strong>Type :</strong> {user.type}</p>
-
-        <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-          <div>
-            <label className="block mb-1 font-medium">Localisation</label>
-            <select
-              name="location"
-              value={preferences.location}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-              disabled={saving}
-            >
-              <option value="">-- Sélectionner une ville --</option>
-              {locationOptions.map(v => (
-                <option key={v} value={v}>{v}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block mb-1 font-medium">Niveau</label>
-            <select
-              name="level"
-              value={preferences.level}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-              disabled={saving}
-            >
-              <option value="">-- Sélectionner --</option>
-              <option value="débutant">Débutant</option>
-              <option value="intermédiaire">Intermédiaire</option>
-              <option value="avancé">Avancé</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block mb-1 font-medium">Objectifs</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {allObjectives.map(obj => (
-                <label key={obj} className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    value={obj}
-                    checked={preferences.objectives.includes(obj)}
-                    onChange={handleObjectiveChange}
-                    className="mr-2"
-                    disabled={saving}
-                  />
-                  {obj}
-                </label>
+            </label>
+            <div className="mt-4 grid grid-cols-5 gap-2">
+              {Object.entries(avatarOptions).map(([key, img]) => (
+                <img
+                  key={key}
+                  src={img}
+                  alt={key}
+                  className={`w-12 h-12 rounded-full cursor-pointer border-2 ${avatarPreview === img ? 'border-[#dc5f18]' : 'border-transparent'
+                    }`}
+                  onClick={() => handleAvatarSelect(key)}
+                />
               ))}
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="bg-[#dc5f18] text-white px-6 py-2 rounded hover:brightness-110 disabled:opacity-50"
-            disabled={saving}
-          >
-            {saving ? 'Mise à jour...' : 'Mettre à jour'}
-          </button>
+          <h1 className="text-3xl font-bold mb-4 text-[#0a1128]">Mon profil</h1>
+          <p><strong>Nom :</strong> {user.username}</p>
+          <p><strong>Email :</strong> {user.email}</p>
+          <p><strong>Type :</strong> {user.type}</p>
 
-          {status && <p className="mt-2 text-sm text-gray-700">{status}</p>}
-        </form>
+          <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+            <div>
+              <label className="block mb-1 font-medium">Localisation</label>
+              <select
+                name="location"
+                value={preferences.location}
+                onChange={handleChange}
+                className="w-full border rounded px-3 py-2"
+                disabled={saving}
+              >
+                <option value="">-- Sélectionner une ville --</option>
+                {locationOptions.map(v => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block mb-1 font-medium">Niveau</label>
+              <select
+                name="level"
+                value={preferences.level}
+                onChange={handleChange}
+                className="w-full border rounded px-3 py-2"
+                disabled={saving}
+              >
+                <option value="">-- Sélectionner --</option>
+                <option value="débutant">Débutant</option>
+                <option value="intermédiaire">Intermédiaire</option>
+                <option value="avancé">Avancé</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block mb-1 font-medium">Objectifs</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {allObjectives.map(obj => (
+                  <label key={obj} className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      value={obj}
+                      checked={preferences.objectives.includes(obj)}
+                      onChange={handleObjectiveChange}
+                      className="mr-2"
+                      disabled={saving}
+                    />
+                    {obj}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="bg-[#dc5f18] text-white px-6 py-2 rounded hover:brightness-110 disabled:opacity-50"
+              disabled={saving}
+            >
+              {saving ? 'Mise à jour...' : 'Mettre à jour'}
+            </button>
+
+            {status && <p className="mt-2 text-sm text-gray-700">{status}</p>}
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

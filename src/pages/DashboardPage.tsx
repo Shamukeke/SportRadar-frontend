@@ -12,6 +12,7 @@ import UpcomingActivitiesList from '../components/UpcomingActivitiesList';
 import PastActivitiesList from '../components/PastActivitiesList';
 import QuickActions from '../components/QuickActions';
 import CountUp from 'react-countup';
+import { Helmet } from 'react-helmet-async';
 import {
   PieChart,
   Pie,
@@ -106,122 +107,130 @@ const DashboardPage: React.FC = () => {
   if (loading) return <div className="min-h-screen flex justify-center items-center">Chargement…</div>;
 
   return (
-    <div className="min-h-screen bg-[#C7C5C5] p-6">
-      <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-2xl p-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-[#0a1128]">
-            Bienvenue, <span className="text-[#dc5f18]">{user.username}</span> !
-          </h1>
-          <h3>{user.email}</h3>
-        </div>
-        <div className="mb-8">
-          <SummaryCards activities={activities} notifications={notifications} />
-        </div>
-        {user.preferences && <PreferencesCard preferences={user.preferences} />}
-        <div className="flex flex-col lg:flex-row gap-8 mb-8">
-          <div className="flex-1">
-            <div className="flex space-x-4 mb-4">
-              <button
-                className={`px-6 py-2 rounded ${tab === 'upcoming' ? 'bg-[#dc5f18] text-white' : 'bg-gray-200'}`}
-                onClick={() => setTab('upcoming')}
-              >À venir ({upcoming.length})</button>
-              <button
-                className={`px-6 py-2 rounded ${tab === 'past' ? 'bg-[#dc5f18] text-white' : 'bg-gray-200'}`}
-                onClick={() => setTab('past')}
-              >Passées ({past.length})</button>
-            </div>
-            {tab === 'upcoming'
-              ? <UpcomingActivitiesList activities={upcoming} />
-              : <PastActivitiesList activities={past} />}
+    <>
+      <Helmet>
+        <title>Mon espace - SportRadar</title>
+        <meta name="description" content="Consultez vos statistiques d'activités et suivez votre progression bien-être." />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+
+      <div className="min-h-screen bg-[#C7C5C5] p-6">
+        <div className="max-w-6xl mx-auto bg-white shadow-lg rounded-2xl p-8">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-[#0a1128]">
+              Bienvenue, <span className="text-[#dc5f18]">{user.username}</span> !
+            </h1>
+            <h3>{user.email}</h3>
           </div>
-          <div className="w-full lg:w-80">
-            <h2 className="text-xl font-semibold mb-4">Calendrier</h2>
-            <Calendar
-              onChange={(value) => {
-                if (value) {
-                  const dateValue = Array.isArray(value) ? value[0] : value;
-                  if (dateValue) {
-                    setDate(dateValue);
-                  }
-                }
-              }}
-              value={date}
-              tileContent={({ date: d, view }) => view === 'month' && (
-                activities.filter(a => new Date(a.date).toDateString() === d.toDateString()).length > 0
-                  ? <div className="mx-auto mt-1 rounded-full bg-[#dc5f18]" style={{ width: 8, height: 8 }} />
-                  : null
-              )}
-            />
-            <div className="mt-4">
-              <h3 className="font-medium mb-2">Activités du {date.toLocaleDateString()}</h3>
-              {activities.filter(a => new Date(a.date).toDateString() === date.toDateString()).map(a => (
-                <p key={a.id} className="text-sm bg-gray-100 p-2 rounded mb-1">{a.name} — {a.time}</p>
-              ))}
-              {!activities.some(a => new Date(a.date).toDateString() === date.toDateString()) && <p className="text-gray-500">Aucune activité</p>}
-            </div>
+          <div className="mb-8">
+            <SummaryCards activities={activities} notifications={notifications} />
           </div>
-        </div>
-        <section className="mb-8 p-6 bg-gradient-to-r from-[#0a1128] to-[#14213d] rounded-lg text-center text-white">
-          <h2 className="text-lg font-semibold mb-2">Votre position dans la communauté</h2>
-          {activities.length === 0 ? (
-            <>
-              <div className="text-5xl font-extrabold mb-2">0%</div>
-              <p className="mb-4">Aucune activité pour l'instant. Lancez-vous !</p>
-              <Star className="w-6 h-6 text-gray-500 mx-auto" />
-            </>
-          ) : (
-            <>
-              <div className="text-5xl font-extrabold mb-2">
-                <CountUp end={communityPercent} suffix="%" duration={1.2} />
-              </div>
-              <div className="flex justify-center space-x-1 mb-2">
-                {Array.from({ length: communityPercent >= 90 ? 5 : communityPercent >= 50 ? 3 : 1 }).map((_, i) => (
-                  <Star key={i} className="w-6 h-6 text-[#dc5f18] animate-pulse" />
-                ))}
-              </div>
-              <p className="text-lg">{communityPercent >= 90 ? '🎉 Bravo ! Vous êtes dans le top 10 %.' : communityPercent >= 50 ? '👍 Vous êtes bien parti, continuez !' : '🚀 Mobilisez-vous, vous pouvez progresser !'}</p>
-            </>
-          )}
-        </section>
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Nos recommandations par rapport à vos objectifs</h2>
-          <div className="flex items-center space-x-8">
-            <PieChart width={128} height={128}>
-              <Pie data={[{ name: 'reste', value: 100 - objectivePercent }, { name: 'atteint', value: objectivePercent }]} dataKey="value" innerRadius={40} outerRadius={60} startAngle={90} endAngle={-270}>
-                <Cell fill="#e5e7eb" />
-                <Cell fill="#dc5f18" />
-              </Pie>
-            </PieChart>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="font-bold text-lg text-[#0a1128]">{objectivePercent}%</span>
-            </div>
+          {user.preferences && <PreferencesCard preferences={user.preferences} />}
+          <div className="flex flex-col lg:flex-row gap-8 mb-8">
             <div className="flex-1">
-              {recommendations.length > 0 ? (
-                <ul className="space-y-2">{recommendations.map((r, i) => (
-                  <li key={r.name} className="flex items-center bg-gray-50 p-3 rounded-lg shadow-sm">
-                    <span className={`mr-3 text-2xl ${i === 0 ? 'text-[#dc5f18]' : i === 1 ? 'text-[#ffc658]' : 'text-[#82ca9d]'}`}>★</span>
-                    <div><p className="font-semibold text-[#0a1128]">{r.name}</p><p className="text-sm text-gray-600">{r.level ? `Niveau ${r.level}` : 'Correspond à vos objectifs'}</p></div>
-                  </li>))}</ul>
-              ) : (
-                <p className="text-gray-600 italic">Poursuivez vos activités pour recevoir des suggestions personnalisées !</p>
-              )}
+              <div className="flex space-x-4 mb-4">
+                <button
+                  className={`px-6 py-2 rounded ${tab === 'upcoming' ? 'bg-[#dc5f18] text-white' : 'bg-gray-200'}`}
+                  onClick={() => setTab('upcoming')}
+                >À venir ({upcoming.length})</button>
+                <button
+                  className={`px-6 py-2 rounded ${tab === 'past' ? 'bg-[#dc5f18] text-white' : 'bg-gray-200'}`}
+                  onClick={() => setTab('past')}
+                >Passées ({past.length})</button>
+              </div>
+              {tab === 'upcoming'
+                ? <UpcomingActivitiesList activities={upcoming} />
+                : <PastActivitiesList activities={past} />}
+            </div>
+            <div className="w-full lg:w-80">
+              <h2 className="text-xl font-semibold mb-4">Calendrier</h2>
+              <Calendar
+                onChange={(value) => {
+                  if (value) {
+                    const dateValue = Array.isArray(value) ? value[0] : value;
+                    if (dateValue) {
+                      setDate(dateValue);
+                    }
+                  }
+                }}
+                value={date}
+                tileContent={({ date: d, view }) => view === 'month' && (
+                  activities.filter(a => new Date(a.date).toDateString() === d.toDateString()).length > 0
+                    ? <div className="mx-auto mt-1 rounded-full bg-[#dc5f18]" style={{ width: 8, height: 8 }} />
+                    : null
+                )}
+              />
+              <div className="mt-4">
+                <h3 className="font-medium mb-2">Activités du {date.toLocaleDateString()}</h3>
+                {activities.filter(a => new Date(a.date).toDateString() === date.toDateString()).map(a => (
+                  <p key={a.id} className="text-sm bg-gray-100 p-2 rounded mb-1">{a.name} — {a.time}</p>
+                ))}
+                {!activities.some(a => new Date(a.date).toDateString() === date.toDateString()) && <p className="text-gray-500">Aucune activité</p>}
+              </div>
             </div>
           </div>
-        </section>
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Prix moyen par catégorie (€)</h2>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={avgPriceByCategory} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-              <XAxis dataKey="category" />
-              <YAxis />
-              <RechartsTooltip />
-              <Bar dataKey="avgPrice" fill="#0a1128" />
-            </BarChart>
-          </ResponsiveContainer>
-        </section>
-        <QuickActions />
+          <section className="mb-8 p-6 bg-gradient-to-r from-[#0a1128] to-[#14213d] rounded-lg text-center text-white">
+            <h2 className="text-lg font-semibold mb-2">Votre position dans la communauté</h2>
+            {activities.length === 0 ? (
+              <>
+                <div className="text-5xl font-extrabold mb-2">0%</div>
+                <p className="mb-4">Aucune activité pour l'instant. Lancez-vous !</p>
+                <Star className="w-6 h-6 text-gray-500 mx-auto" />
+              </>
+            ) : (
+              <>
+                <div className="text-5xl font-extrabold mb-2">
+                  <CountUp end={communityPercent} suffix="%" duration={1.2} />
+                </div>
+                <div className="flex justify-center space-x-1 mb-2">
+                  {Array.from({ length: communityPercent >= 90 ? 5 : communityPercent >= 50 ? 3 : 1 }).map((_, i) => (
+                    <Star key={i} className="w-6 h-6 text-[#dc5f18] animate-pulse" />
+                  ))}
+                </div>
+                <p className="text-lg">{communityPercent >= 90 ? '🎉 Bravo ! Vous êtes dans le top 10 %.' : communityPercent >= 50 ? '👍 Vous êtes bien parti, continuez !' : '🚀 Mobilisez-vous, vous pouvez progresser !'}</p>
+              </>
+            )}
+          </section>
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">Nos recommandations par rapport à vos objectifs</h2>
+            <div className="flex items-center space-x-8">
+              <PieChart width={128} height={128}>
+                <Pie data={[{ name: 'reste', value: 100 - objectivePercent }, { name: 'atteint', value: objectivePercent }]} dataKey="value" innerRadius={40} outerRadius={60} startAngle={90} endAngle={-270}>
+                  <Cell fill="#e5e7eb" />
+                  <Cell fill="#dc5f18" />
+                </Pie>
+              </PieChart>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="font-bold text-lg text-[#0a1128]">{objectivePercent}%</span>
+              </div>
+              <div className="flex-1">
+                {recommendations.length > 0 ? (
+                  <ul className="space-y-2">{recommendations.map((r, i) => (
+                    <li key={r.name} className="flex items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                      <span className={`mr-3 text-2xl ${i === 0 ? 'text-[#dc5f18]' : i === 1 ? 'text-[#ffc658]' : 'text-[#82ca9d]'}`}>★</span>
+                      <div><p className="font-semibold text-[#0a1128]">{r.name}</p><p className="text-sm text-gray-600">{r.level ? `Niveau ${r.level}` : 'Correspond à vos objectifs'}</p></div>
+                    </li>))}</ul>
+                ) : (
+                  <p className="text-gray-600 italic">Poursuivez vos activités pour recevoir des suggestions personnalisées !</p>
+                )}
+              </div>
+            </div>
+          </section>
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">Prix moyen par catégorie (€)</h2>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={avgPriceByCategory} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                <XAxis dataKey="category" />
+                <YAxis />
+                <RechartsTooltip />
+                <Bar dataKey="avgPrice" fill="#0a1128" />
+              </BarChart>
+            </ResponsiveContainer>
+          </section>
+          <QuickActions />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
